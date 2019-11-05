@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Microsoft.OneWeek.Hack.Microids.IoTDevice": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
