@@ -45,9 +45,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests
 
             // Act
             var ct = new CancellationTokenSource();
-            var task = Task.Run(() => {
-                router.Initiate(ct.Token);
-            });
+            var task = router.Initiate(ct.Token);
 
             while (deliveredMessages < TOTAL_MESSAGES){
                 Debug.WriteLine($"Delivered {deliveredMessages} messages...waiting");
