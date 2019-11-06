@@ -1,0 +1,24 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    projects: |
+      Microsoft.OneWeek.Hack.Microids.MessageRouter\Microsoft.OneWeek.Hack.Microids.MessageRouter.csproj
+      Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests\Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests.csproj
+
+- task: VSTest@2
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: |
+      Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests\*test*.dll
+      !**\*TestAdapter.dll
+      !**\obj\**
+    searchFolder: '$(System.DefaultWorkingDirectory)'      
