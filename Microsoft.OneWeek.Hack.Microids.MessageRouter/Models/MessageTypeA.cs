@@ -4,6 +4,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 
     public class MessageTypeA : Message
     {
+
         public string Id { get; set; }
         public string Desc { get; set; }
         public DeviceCapability Capabilities { get; set; }
