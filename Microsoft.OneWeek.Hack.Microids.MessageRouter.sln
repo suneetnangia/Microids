@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29318.209
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.OneWeek.Hack.Microids.MessageRouter", "Microsoft.OneWeek.Hack.Microids.MessageRouter\Microsoft.OneWeek.Hack.Microids.MessageRouter.csproj", "{164F9079-3BB8-4241-8756-C44CF04F1EBA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.OneWeek.Hack.Microids.IoTDevice", "Microsoft.OneWeek.Hack.Microids.IoTDevice\Microsoft.OneWeek.Hack.Microids.IoTDevice.csproj", "{BCFF3BCA-5DF9-4AE8-B548-DB9C2C4B21CC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests", "Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests\Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests.csproj", "{190B92A4-88A4-4AAB-B189-D422EECD677F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{164F9079-3BB8-4241-8756-C44CF04F1EBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{164F9079-3BB8-4241-8756-C44CF04F1EBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{164F9079-3BB8-4241-8756-C44CF04F1EBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{164F9079-3BB8-4241-8756-C44CF04F1EBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCFF3BCA-5DF9-4AE8-B548-DB9C2C4B21CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCFF3BCA-5DF9-4AE8-B548-DB9C2C4B21CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCFF3BCA-5DF9-4AE8-B548-DB9C2C4B21CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCFF3BCA-5DF9-4AE8-B548-DB9C2C4B21CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{190B92A4-88A4-4AAB-B189-D422EECD677F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{190B92A4-88A4-4AAB-B189-D422EECD677F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{190B92A4-88A4-4AAB-B189-D422EECD677F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{190B92A4-88A4-4AAB-B189-D422EECD677F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3097B32E-A998-4D02-A5E3-C60B44282EB4}
+	EndGlobalSection
+EndGlobal

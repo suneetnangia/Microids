@@ -13,6 +13,8 @@
 
     public class Program
     {
+        public const string AppInsightsConfigKey = "APPINSIGHTS_KEY";
+
         // TODO: Async 
         public static async Task Main(string[] args)
         {
@@ -30,6 +32,7 @@
                 var configuration = new ConfigurationBuilder()
                     .SetBasePath(Environment.CurrentDirectory)
                     .AddJsonFile("local.settings.json", true)
+                    .AddEnvironmentVariables()
                     .Build();
 
                 // Bootstrap services using dependency injection.
@@ -47,9 +50,8 @@
                     // Get a new message router object.
                     var messagerouter = serviceProvider.GetService<EnrichmentMessageRouter>();
 
-                    var httpClient = new System.Net.Http.HttpClient();
-                    var resp = await httpClient.GetAsync("https://www.microsoft.com");
-                    Console.WriteLine(await resp.Content.ReadAsStringAsync());
+                    var telemetryClient = serviceProvider.GetService<TelemetryClient>();
+                    telemetryClient.TrackTrace($"MessageRouter starting up on {Environment.MachineName}");
 
                     messagerouter.Initiate(cts.Token);
                     await WhenCancelled(cts.Token);
@@ -57,19 +59,12 @@
             }
         }
 
-        private static string AppInsightsKey
-        {
-            get
-            {
-                string s = System.Environment.GetEnvironmentVariable("APPINSIGHTS_KEY");
-                return s;
-            }
-        }
-
         private static TelemetryClient ConstructTelemetryClient(IConfiguration config)
         {
             TelemetryConfiguration configuration = TelemetryConfiguration.CreateDefault();
-            configuration.InstrumentationKey = AppInsightsKey;
+            configuration.InstrumentationKey = config.GetValue<string>(AppInsightsConfigKey);
+
+            // TODO: Remove this before going to production
             Console.WriteLine($"InstrumentationKey={configuration.InstrumentationKey}");
             configuration.TelemetryInitializers.Add(new HttpDependenciesParsingTelemetryInitializer());
             InitializeDependencyTracking(configuration);

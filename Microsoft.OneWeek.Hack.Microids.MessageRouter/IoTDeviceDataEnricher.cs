@@ -2,7 +2,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 {
     using Grpc.Core;
     using IoTDevice;
-    using System.Threading;
+    using Microsoft.Extensions.Configuration;
     using System.Threading.Tasks;
 
     // Enricher to call gRPC based data service.
@@ -10,18 +10,22 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
     // TODO: Implement IDisposable pattern.
     public class IoTDeviceGrpcDataEnricher : IIoTDeviceDataEnricher
     {
-        public IoTDeviceGrpcDataEnricher()
+        private IConfiguration config;
+
+        public IoTDeviceGrpcDataEnricher(IConfiguration config)
         {
+            this.config = config;
+
             //CACHE_GRPC_ENDPOINT
             Channel channel = new Channel("localhost:5000", ChannelCredentials.Insecure);
             this.Client = new IoTDevice.IoTDeviceClient(channel);
         }
 
-        private static string CacheGrpcEndpoint
+        private string CacheGrpcEndpoint
         {
             get
             {
-                string s = System.Environment.GetEnvironmentVariable("CACHE_GRPC_ENDPOINT");
+                string s = config.GetValue<string>("CACHE_GRPC_ENDPOINT");
                 if (string.IsNullOrEmpty(s)) return "localhost:5000";
                 return s;
             }
@@ -31,27 +35,8 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 
         public Task<DeviceMetadata> GetMetadataAsync(string id)
         {
-            /*
-            var mre = new ManualResetEventSlim();
-            try
-            {
-                 */
             var request = new DeviceInfo() { Id = id };
             return this.Client.GetMetadataAsync(request).ResponseAsync;
-            /*
-        }
-        catch (RpcException ex)
-        {
-            if (ex.StatusCode == StatusCode.Unavailable)
-            {
-
-            }
-            else
-            {
-                throw ex;
-            }
-        }
-         */
         }
     }
 }
