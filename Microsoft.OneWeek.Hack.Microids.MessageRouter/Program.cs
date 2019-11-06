@@ -10,10 +10,12 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Logging;
+    using Microids.Common;
 
     public class Program
     {
-        // TODO: Async 
+
         public static async Task Main(string[] args)
         {
 
@@ -34,12 +36,28 @@
 
                 // Bootstrap services using dependency injection.
                 var services = new ServiceCollection();
+                services.AddLogging(configure =>
+                {
+                    configure.AddProvider(new SingleLineConsoleLoggerProvider());
+                })
+                .Configure<LoggerFilterOptions>(options =>
+                {
+                    if (Enum.TryParse(LogLevel, out Microsoft.Extensions.Logging.LogLevel level))
+                    {
+                        options.MinLevel = level;
+                    }
+                    else
+                    {
+                        options.MinLevel = Microsoft.Extensions.Logging.LogLevel.Information;
+                    }
+                });
                 var telemetry = ConstructTelemetryClient(configuration);
                 services.AddSingleton<TelemetryClient>(telemetry);
                 services.AddSingleton<EnrichmentMessageRouter>();
                 services.AddSingleton<IDataSource>(new TestGeneratorDataSource());
-                services.AddSingleton<IDataSink>(new BlackHoleDataSink());
-                services.AddSingleton<IIoTDeviceDataEnricher>(new IoTDeviceGrpcDataEnricher(telemetry));
+                var provider = services.BuildServiceProvider();
+                services.AddSingleton<IDataSink>(new BlackHoleDataSink(provider.GetService<ILogger<BlackHoleDataSink>>()));
+                services.AddSingleton<IIoTDeviceDataEnricher>(new IoTDeviceGrpcDataEnricher(telemetry, provider.GetService<ILogger<IoTDeviceGrpcDataEnricher>>()));
                 services.AddSingleton<IConfiguration>(configuration);
 
                 // Dispose method of ServiceProvider will dispose all disposable objects constructed by it as well.
@@ -47,14 +65,17 @@
                 {
                     // Get a new message router object.
                     var messagerouter = serviceProvider.GetService<EnrichmentMessageRouter>();
-
-                    var httpClient = new System.Net.Http.HttpClient();
-                    var resp = await httpClient.GetAsync("https://www.microsoft.com");
-                    Console.WriteLine(await resp.Content.ReadAsStringAsync());
-
                     messagerouter.Initiate(cts.Token);
                     await WhenCancelled(cts.Token);
                 }
+            }
+        }
+
+        private static string LogLevel
+        {
+            get
+            {
+                return System.Environment.GetEnvironmentVariable("LOG_LEVEL");
             }
         }
 
@@ -71,10 +92,8 @@
         {
             TelemetryConfiguration configuration = TelemetryConfiguration.CreateDefault();
             configuration.InstrumentationKey = AppInsightsKey;
-            Console.WriteLine($"InstrumentationKey={configuration.InstrumentationKey}");
             configuration.TelemetryInitializers.Add(new HttpDependenciesParsingTelemetryInitializer());
             InitializeDependencyTracking(configuration);
-
             return new TelemetryClient(configuration);
         }
 
