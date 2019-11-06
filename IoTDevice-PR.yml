@@ -4,7 +4,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- template: templates/pr-validation-steps.yml
+- template: template-pr.yml
   parameters:
     buildProjects:
       - Microsoft.OneWeek.Hack.Microids.IoTDevice/Microsoft.OneWeek.Hack.Microids.IoTDevice.csproj
