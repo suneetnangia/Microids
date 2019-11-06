@@ -10,7 +10,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests
         private string ConfigKey = "TestConfigSetting";
 
         [Fact]
-        public void VerifyMockDataSinkDoesNotThrow()
+        public async void VerifyMockDataSinkDoesNotThrow()
         {
             var myConfiguration = new Dictionary<string, string>
             {
@@ -24,7 +24,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests
             var mockDataSink = new Mock<IDataSink>();
             mockDataSink.Setup(x => x.WriteMessageAsync(It.IsAny<IMessage>()));
             
-            mockDataSink.Object.WriteMessageAsync(new MessageTypeA(Id: config.GetValue<string>(ConfigKey), Desc: "Any description"));
+            await mockDataSink.Object.WriteMessageAsync(new MessageTypeA(Id: config.GetValue<string>(ConfigKey), Desc: "Any description"));
         }
     }
 }
