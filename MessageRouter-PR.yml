@@ -4,7 +4,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- template: template-pr.yml
+- template: Template-PR.yml
   parameters:
     buildProjects:
       - Microsoft.OneWeek.Hack.Microids.MessageRouter/Microsoft.OneWeek.Hack.Microids.MessageRouter.csproj
