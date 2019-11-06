@@ -5,17 +5,25 @@
     using System.Threading;
     using System.Runtime.Loader;
     using Microsoft.Extensions.DependencyInjection;
+<<<<<<< HEAD
+    using dotenv.net;
+=======
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.Extensions.Configuration;
     using System.Net.Http;
+>>>>>>> b3b3b7347f8660c4eb33f373e7b34733f3e6c30b
 
     public class Program
     {
         // TODO: Async 
         public static async Task Main(string[] args)
         {
+
+            // load configuration
+            DotEnv.Config(false);
+
             // Wait until the app unloads or is cancelled by external triggers, use it for exceptional scnearios only.
             using (var cts = new CancellationTokenSource())
             {
@@ -29,11 +37,19 @@
                     .Build();
 
                 // Bootstrap services using dependency injection.
+<<<<<<< HEAD
+                var services = new ServiceCollection();
+                services.AddSingleton<EnrichmentMessageRouter>();
+                services.AddSingleton<IDataSource>(new TestGeneratorDataSource());
+                services.AddSingleton<IDataSink>(new BlackHoleDataSink());
+                services.AddSingleton<IIoTDeviceDataEnricher>(new IoTDeviceGrpcDataEnricher());
+=======
                 var services = new ServiceCollection()
                     .AddSingleton<IConfiguration>(configuration)
                     .AddSingleton<TelemetryClient>(ConstructTelemetryClient(configuration));
 
                 // TODO: confiure all services here e.g. IDataSink, IDataSource, IDeviceDataEnricher etc. 
+>>>>>>> b3b3b7347f8660c4eb33f373e7b34733f3e6c30b
 
                 // Dispose method of ServiceProvider will dispose all disposable objects constructed by it as well.
                 using (var serviceProvider = services.BuildServiceProvider())
@@ -41,7 +57,12 @@
                     // Get a new message router object.
                     var messagerouter = serviceProvider.GetService<EnrichmentMessageRouter>();
                     messagerouter.Initiate(cts.Token);
+<<<<<<< HEAD
+
+                    await WhenCancelled(cts.Token);
+=======
                     await WhenCancelled(cts.Token);        
+>>>>>>> b3b3b7347f8660c4eb33f373e7b34733f3e6c30b
                 }
             }
         }

@@ -1,4 +1,4 @@
-namespace Microsoft.OneWeek.Hack.Microids.IoTDevice
+namespace Microsoft.OneWeek.Hack.Microids.Core
 {
     using System;
 
@@ -6,7 +6,7 @@ namespace Microsoft.OneWeek.Hack.Microids.IoTDevice
     public enum DeviceCapability
     {
         None = 0,
-        Temperature= 1,
+        Temperature = 1,
         WindSpeed = 2,
         LuxLevel = 4,
         RotationSpeed = 8
