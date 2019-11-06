@@ -5,7 +5,15 @@
     using System.Threading;
     using System.Runtime.Loader;
     using Microsoft.Extensions.DependencyInjection;
+<<<<<<< HEAD
     using dotenv.net;
+=======
+    using Microsoft.ApplicationInsights;
+    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.DependencyCollector;
+    using Microsoft.Extensions.Configuration;
+    using System.Net.Http;
+>>>>>>> b3b3b7347f8660c4eb33f373e7b34733f3e6c30b
 
     public class Program
     {
@@ -23,12 +31,25 @@
                 AssemblyLoadContext.Default.Unloading += (ctx) => cts.Cancel();
                 Console.CancelKeyPress += (sender, cpe) => cts.Cancel();
 
+                var configuration = new ConfigurationBuilder()
+                    .SetBasePath(Environment.CurrentDirectory)
+                    .AddJsonFile("local.settings.json", true)
+                    .Build();
+
                 // Bootstrap services using dependency injection.
+<<<<<<< HEAD
                 var services = new ServiceCollection();
                 services.AddSingleton<EnrichmentMessageRouter>();
                 services.AddSingleton<IDataSource>(new TestGeneratorDataSource());
                 services.AddSingleton<IDataSink>(new BlackHoleDataSink());
                 services.AddSingleton<IIoTDeviceDataEnricher>(new IoTDeviceGrpcDataEnricher());
+=======
+                var services = new ServiceCollection()
+                    .AddSingleton<IConfiguration>(configuration)
+                    .AddSingleton<TelemetryClient>(ConstructTelemetryClient(configuration));
+
+                // TODO: confiure all services here e.g. IDataSink, IDataSource, IDeviceDataEnricher etc. 
+>>>>>>> b3b3b7347f8660c4eb33f373e7b34733f3e6c30b
 
                 // Dispose method of ServiceProvider will dispose all disposable objects constructed by it as well.
                 using (var serviceProvider = services.BuildServiceProvider())
@@ -36,10 +57,48 @@
                     // Get a new message router object.
                     var messagerouter = serviceProvider.GetService<EnrichmentMessageRouter>();
                     messagerouter.Initiate(cts.Token);
+<<<<<<< HEAD
 
                     await WhenCancelled(cts.Token);
+=======
+                    await WhenCancelled(cts.Token);        
+>>>>>>> b3b3b7347f8660c4eb33f373e7b34733f3e6c30b
                 }
             }
+        }
+
+        private static TelemetryClient ConstructTelemetryClient(IConfiguration config)
+        {
+            TelemetryConfiguration configuration = TelemetryConfiguration.CreateDefault();
+            configuration.InstrumentationKey = config.GetValue<string>("AppInsightsKey");
+            configuration.TelemetryInitializers.Add(new HttpDependenciesParsingTelemetryInitializer());
+            InitializeDependencyTracking(configuration);
+
+            return new TelemetryClient(configuration);
+        }
+
+        private static DependencyTrackingTelemetryModule InitializeDependencyTracking(TelemetryConfiguration configuration)
+        {
+            var module = new DependencyTrackingTelemetryModule();
+
+            // prevent Correlation Id to be sent to certain endpoints. You may add other domains as needed.
+            module.ExcludeComponentCorrelationHttpHeadersOnDomains.Add("core.windows.net");
+            module.ExcludeComponentCorrelationHttpHeadersOnDomains.Add("core.chinacloudapi.cn");
+            module.ExcludeComponentCorrelationHttpHeadersOnDomains.Add("core.cloudapi.de");
+            module.ExcludeComponentCorrelationHttpHeadersOnDomains.Add("core.usgovcloudapi.net");
+            module.ExcludeComponentCorrelationHttpHeadersOnDomains.Add("localhost");
+            module.ExcludeComponentCorrelationHttpHeadersOnDomains.Add("127.0.0.1");
+
+            // enable known dependency tracking, note that in future versions, we will extend this list. 
+            // please check default settings in https://github.com/Microsoft/ApplicationInsights-dotnet-server/blob/develop/Src/DependencyCollector/DependencyCollector/ApplicationInsights.config.install.xdt
+
+            module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.ServiceBus");
+            module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.EventHubs");
+
+            // initialize the module
+            module.Initialize(configuration);
+
+            return module;
         }
 
         public static Task WhenCancelled(CancellationToken cancellationToken)
