@@ -22,8 +22,9 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests
                     .Build();
 
             var mockDataSink = new Mock<IDataSink>();
-            mockDataSink.Setup(x => x.WriteMessage(It.IsAny<string>()));
-            mockDataSink.Object.WriteMessage(config.GetValue<string>(ConfigKey));
+            mockDataSink.Setup(x => x.WriteMessage(It.IsAny<Message>()));
+            
+            mockDataSink.Object.WriteMessage(new MessageTypeA() { Id = config.GetValue<string>(ConfigKey) });
         }
     }
 }
