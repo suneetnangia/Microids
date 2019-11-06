@@ -16,6 +16,9 @@
     public class Program
     {
 
+        public const string AppInsightsConfigKey = "APPINSIGHTS_KEY";
+
+        // TODO: Async 
         public static async Task Main(string[] args)
         {
 
@@ -32,6 +35,7 @@
                 var configuration = new ConfigurationBuilder()
                     .SetBasePath(Environment.CurrentDirectory)
                     .AddJsonFile("local.settings.json", true)
+                    .AddEnvironmentVariables()
                     .Build();
 
                 // Bootstrap services using dependency injection.
@@ -42,7 +46,8 @@
                 })
                 .Configure<LoggerFilterOptions>(options =>
                 {
-                    if (Enum.TryParse(LogLevel, out Microsoft.Extensions.Logging.LogLevel level))
+                    string logLevel = configuration.GetValue<string>("LOG_LEVEL");
+                    if (Enum.TryParse(logLevel, out Microsoft.Extensions.Logging.LogLevel level))
                     {
                         options.MinLevel = level;
                     }
@@ -57,7 +62,7 @@
                 services.AddSingleton<IDataSource>(new TestGeneratorDataSource());
                 var provider = services.BuildServiceProvider();
                 services.AddSingleton<IDataSink>(new BlackHoleDataSink(provider.GetService<ILogger<BlackHoleDataSink>>()));
-                services.AddSingleton<IIoTDeviceDataEnricher>(new IoTDeviceGrpcDataEnricher(telemetry, provider.GetService<ILogger<IoTDeviceGrpcDataEnricher>>()));
+                services.AddSingleton<IIoTDeviceDataEnricher>(new IoTDeviceGrpcDataEnricher(telemetry, configuration, provider.GetService<ILogger<IoTDeviceGrpcDataEnricher>>()));
                 services.AddSingleton<IConfiguration>(configuration);
 
                 // Dispose method of ServiceProvider will dispose all disposable objects constructed by it as well.
@@ -65,33 +70,23 @@
                 {
                     // Get a new message router object.
                     var messagerouter = serviceProvider.GetService<EnrichmentMessageRouter>();
+
+                    var telemetryClient = serviceProvider.GetService<TelemetryClient>();
+                    telemetryClient.TrackTrace($"MessageRouter starting up on {Environment.MachineName}");
+
                     messagerouter.Initiate(cts.Token);
                     await WhenCancelled(cts.Token);
                 }
             }
         }
 
-        private static string LogLevel
-        {
-            get
-            {
-                return System.Environment.GetEnvironmentVariable("LOG_LEVEL");
-            }
-        }
-
-        private static string AppInsightsKey
-        {
-            get
-            {
-                string s = System.Environment.GetEnvironmentVariable("APPINSIGHTS_KEY");
-                return s;
-            }
-        }
-
         private static TelemetryClient ConstructTelemetryClient(IConfiguration config)
         {
             TelemetryConfiguration configuration = TelemetryConfiguration.CreateDefault();
-            configuration.InstrumentationKey = AppInsightsKey;
+            configuration.InstrumentationKey = config.GetValue<string>(AppInsightsConfigKey);
+
+            // TODO: Remove this before going to production
+            Console.WriteLine($"InstrumentationKey={configuration.InstrumentationKey}");
             configuration.TelemetryInitializers.Add(new HttpDependenciesParsingTelemetryInitializer());
             InitializeDependencyTracking(configuration);
             return new TelemetryClient(configuration);

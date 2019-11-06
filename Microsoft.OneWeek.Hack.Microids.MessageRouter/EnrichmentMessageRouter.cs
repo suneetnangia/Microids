@@ -3,20 +3,23 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
     using System;
     using System.Threading;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Configuration;
 
     public class EnrichmentMessageRouter
     {
         private IIoTDeviceDataEnricher dataEnricher;
         private IDataSource dataSource;
         private IDataSink dataSink;
-        private ILogger<EnrichmentMessageRouter> Logger;
+        private ILogger<EnrichmentMessageRouter> logger;
+        private IConfiguration config;
 
-        public EnrichmentMessageRouter(IDataSource dataSource, IDataSink dataSink, IIoTDeviceDataEnricher dataEnricher, ILogger<EnrichmentMessageRouter> logger)
+        public EnrichmentMessageRouter(IDataSource dataSource, IDataSink dataSink, IIoTDeviceDataEnricher dataEnricher, IConfiguration config, ILogger<EnrichmentMessageRouter> logger)
         {
             this.dataSource = dataSource;
             this.dataSink = dataSink;
             this.dataEnricher = dataEnricher;
-            this.Logger = logger;
+            this.logger = logger;
+            this.config = config;
 
             // handle messages as they arrive
             this.MessageReceived += async (sender, e) =>
@@ -57,15 +60,15 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Exception raised OnMessageReceived...");
+                logger.LogError(ex, "Exception raised OnMessageReceived...");
             }
         }
 
-        private static int GenerateMessagesEvery
+        private int GenerateMessagesEvery
         {
             get
             {
-                string s = System.Environment.GetEnvironmentVariable("GENERATE_MESSAGES_EVERY");
+                string s = config.GetValue<string>("GENERATE_MESSAGES_EVERY");
                 if (int.TryParse(s, out int i))
                 {
                     return i;
@@ -77,11 +80,11 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
             }
         }
 
-        private static int NumMessagesEachGeneration
+        private int NumMessagesEachGeneration
         {
             get
             {
-                string s = System.Environment.GetEnvironmentVariable("NUM_MESSAGES_EACH_GENERATION");
+                string s = config.GetValue<string>("NUM_MESSAGES_EACH_GENERATION");
                 if (int.TryParse(s, out int i))
                 {
                     return i;
