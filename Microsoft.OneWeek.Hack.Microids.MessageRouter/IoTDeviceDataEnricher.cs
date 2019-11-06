@@ -4,6 +4,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
     using Grpc.Core;
     using IoTDevice;
     using Microsoft.ApplicationInsights;
+    using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Configuration;
     using System.Threading.Tasks;
 
@@ -15,14 +16,15 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 
         private IConfiguration config;
         private TelemetryClient telemetryClient;
+        private ILogger<IoTDeviceGrpcDataEnricher> logger;
 
-        public IoTDeviceGrpcDataEnricher(IConfiguration config, TelemetryClient telemetryClient)
+        public IoTDeviceGrpcDataEnricher(TelemetryClient telemetryClient, IConfiguration config, ILogger<IoTDeviceGrpcDataEnricher> logger)
         {
-            this.config = config;
             this.telemetryClient = telemetryClient;
+            this.config = config;
+            this.logger = logger;
 
-            //CACHE_GRPC_ENDPOINT
-            Channel channel = new Channel("localhost:5000", ChannelCredentials.Insecure);
+            Channel channel = new Channel(CacheGrpcEndpoint, ChannelCredentials.Insecure);
             this.Client = new IoTDevice.IoTDeviceClient(channel);
         }
 
@@ -77,6 +79,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                     var response = await this.Client.GetMetadataAsync(request);
                     if (FailedToDispatch)
                     {
+                        logger.LogDebug("gRPC client connected successfully.");
                         telemetryClient.TrackEvent($"gRPC client connected successfully from {System.Environment.MachineName}.");
                         FailedToDispatch = false;
                     }
@@ -87,7 +90,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                 {
                     if (ex.StatusCode == StatusCode.Unavailable)
                     {
-                        Console.WriteLine("gRPC client failed to connect...");
+                        logger.LogWarning("gRPC client failed to connect...");
                         telemetryClient.TrackEvent($"gRPC client failed to connect from {System.Environment.MachineName}.");
                         FailedToDispatch = true;
                     }
@@ -105,6 +108,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                 current += 1000;
                 if (current > CacheGrpcTimeout)
                 {
+                    logger.LogError("gRPC client timed out.");
                     telemetryClient.TrackEvent($"gRPC client timed out from {System.Environment.MachineName}.");
                     throw new Exception("gRPC client timed out.");
                 }

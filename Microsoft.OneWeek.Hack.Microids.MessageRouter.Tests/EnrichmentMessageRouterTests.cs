@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests
 {
@@ -23,6 +24,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests
             var mockDataSink = new Mock<IDataSink>();
             var mockDataSource = new Mock<IDataSource>();
             var mockDataEnricher = new Mock<IIoTDeviceDataEnricher>();
+            var mockLogger = new Mock<ILogger<EnrichmentMessageRouter>>();
 
             mockDataSink
                 .Setup(x => x.WriteMessageAsync(It.IsAny<IMessage>()))
@@ -41,7 +43,8 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests
             var router = new EnrichmentMessageRouter(mockDataSource.Object, 
                 mockDataSink.Object, 
                 mockDataEnricher.Object, 
-                config);
+                config,
+                mockLogger.Object);
 
             // Act
             var ct = new CancellationTokenSource();
