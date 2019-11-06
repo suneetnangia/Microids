@@ -2,7 +2,6 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 {
     using System;
     using System.Threading;
-    using Microsoft.OneWeek.Hack.Microids.Core;
 
     public class EnrichmentMessageRouter
     {

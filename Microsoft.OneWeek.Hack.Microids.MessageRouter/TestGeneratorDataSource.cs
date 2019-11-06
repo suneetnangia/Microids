@@ -1,5 +1,3 @@
-using Microsoft.OneWeek.Hack.Microids.Core;
-
 namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 {
     public class TestGeneratorDataSource : IDataSource
