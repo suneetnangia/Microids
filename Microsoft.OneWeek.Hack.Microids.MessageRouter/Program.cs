@@ -10,9 +10,12 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Logging;
+    using Microids.Common;
 
     public class Program
     {
+
         public const string AppInsightsConfigKey = "APPINSIGHTS_KEY";
 
         // TODO: Async 
@@ -37,12 +40,29 @@
 
                 // Bootstrap services using dependency injection.
                 var services = new ServiceCollection();
+                services.AddLogging(configure =>
+                {
+                    configure.AddProvider(new SingleLineConsoleLoggerProvider());
+                })
+                .Configure<LoggerFilterOptions>(options =>
+                {
+                    string logLevel = configuration.GetValue<string>("LOG_LEVEL");
+                    if (Enum.TryParse(logLevel, out Microsoft.Extensions.Logging.LogLevel level))
+                    {
+                        options.MinLevel = level;
+                    }
+                    else
+                    {
+                        options.MinLevel = Microsoft.Extensions.Logging.LogLevel.Information;
+                    }
+                });
                 var telemetry = ConstructTelemetryClient(configuration);
                 services.AddSingleton<TelemetryClient>(telemetry);
                 services.AddSingleton<EnrichmentMessageRouter>();
                 services.AddSingleton<IDataSource>(new TestGeneratorDataSource());
-                services.AddSingleton<IDataSink>(new BlackHoleDataSink());
-                services.AddSingleton<IIoTDeviceDataEnricher>(new IoTDeviceGrpcDataEnricher(configuration, telemetry));
+                var provider = services.BuildServiceProvider();
+                services.AddSingleton<IDataSink>(new BlackHoleDataSink(provider.GetService<ILogger<BlackHoleDataSink>>()));
+                services.AddSingleton<IIoTDeviceDataEnricher>(new IoTDeviceGrpcDataEnricher(telemetry, configuration, provider.GetService<ILogger<IoTDeviceGrpcDataEnricher>>()));
                 services.AddSingleton<IConfiguration>(configuration);
 
                 // Dispose method of ServiceProvider will dispose all disposable objects constructed by it as well.
@@ -69,7 +89,6 @@
             Console.WriteLine($"InstrumentationKey={configuration.InstrumentationKey}");
             configuration.TelemetryInitializers.Add(new HttpDependenciesParsingTelemetryInitializer());
             InitializeDependencyTracking(configuration);
-
             return new TelemetryClient(configuration);
         }
 

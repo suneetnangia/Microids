@@ -2,6 +2,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 {
     using System;
     using System.Threading;
+    using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Configuration;
 
     public class EnrichmentMessageRouter
@@ -9,15 +10,15 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
         private IIoTDeviceDataEnricher dataEnricher;
         private IDataSource dataSource;
         private IDataSink dataSink;
-
+        private ILogger<EnrichmentMessageRouter> logger;
         private IConfiguration config;
 
-        public EnrichmentMessageRouter(IDataSource dataSource, IDataSink dataSink, IIoTDeviceDataEnricher dataEnricher, IConfiguration config)
+        public EnrichmentMessageRouter(IDataSource dataSource, IDataSink dataSink, IIoTDeviceDataEnricher dataEnricher, IConfiguration config, ILogger<EnrichmentMessageRouter> logger)
         {
             this.dataSource = dataSource;
             this.dataSink = dataSink;
             this.dataEnricher = dataEnricher;
-
+            this.logger = logger;
             this.config = config;
 
             // handle messages as they arrive
@@ -59,9 +60,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception raised OnMessageReceived...");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine(ex.StackTrace);
+                logger.LogError(ex, "Exception raised OnMessageReceived...");
             }
         }
 
