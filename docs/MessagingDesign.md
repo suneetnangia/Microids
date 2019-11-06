@@ -16,8 +16,7 @@ Following these results, we'll measure and evaluate. As needed, the 3rd step wou
 For streaming, we'll use bi-directional streaming, leveraging the form:
 
 ```
-rpc BidiHello(stream HelloRequest) returns (stream HelloResponse){
-}
+rpc BidiHello(stream HelloRequest) returns (stream HelloResponse){ }
 ```
 
 This method can be leveraged even for the single-message case, allowing the same code to be used keeping testing the same.
