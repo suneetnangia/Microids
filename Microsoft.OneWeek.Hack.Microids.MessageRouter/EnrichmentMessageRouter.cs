@@ -56,7 +56,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
             }
         }
 
-        private int GenerateMessagesEvery
+        private static int GenerateMessagesEvery
         {
             get
             {
@@ -72,7 +72,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
             }
         }
 
-        private int NumMessagesEachGeneration
+        private static int NumMessagesEachGeneration
         {
             get
             {

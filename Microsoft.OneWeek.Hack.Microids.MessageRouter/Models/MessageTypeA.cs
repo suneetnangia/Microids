@@ -18,7 +18,9 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 
         public void EnrichMessage(DeviceMetadata metadata)
         {
-            this.Capabilities = metadata.Capability;
+            if (metadata != null){
+                this.Capabilities = metadata.Capability;
+            }
         }
 
         public string GetDeviceId()
