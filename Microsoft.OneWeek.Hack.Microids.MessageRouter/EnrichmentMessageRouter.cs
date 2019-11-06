@@ -2,6 +2,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 {
     using System;
     using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Configuration;
     using Microsoft.ApplicationInsights;
@@ -115,25 +116,25 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
             }
         }
 
-        public void Initiate(CancellationToken ct)
+        public Task Initiate(CancellationToken ct)
         {
-            Timer timer = new Timer(async (_) =>
-               {
-                   for (int i = 0; i < NumMessagesEachGeneration; i++)
-                   {
-                       var msg = await this.dataSource.ReadMessageAsync();
-                       OnMessageReceived(new MessageReceivedEventArgs()
-                       {
-                           Message = msg
-                       });
-                   }
-               }, null, GenerateMessagesEvery, GenerateMessagesEvery);
-            while (!ct.IsCancellationRequested)
-            {
-                // let the timer run
-            }
-            timer.Change(0, 0);
-            timer.Dispose();
+            return Task.Run(() => {
+                Timer timer = new Timer(async (_) =>
+                {
+                    for (int i = 0; i < NumMessagesEachGeneration; i++)
+                    {
+                        var msg = await this.dataSource.ReadMessageAsync();
+                        OnMessageReceived(new MessageReceivedEventArgs()
+                        {
+                            Message = msg
+                        });
+                    }
+                }, null, GenerateMessagesEvery, GenerateMessagesEvery);
+
+                while (!ct.IsCancellationRequested){
+                    Thread.Sleep(TimeSpan.FromSeconds(.250));
+                }
+            }, ct);
         }
 
     }

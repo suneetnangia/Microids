@@ -21,7 +21,6 @@
         // TODO: Async 
         public static async Task Main(string[] args)
         {
-
             // load configuration
             DotEnv.Config(false);
 
@@ -74,8 +73,7 @@
                     var telemetryClient = serviceProvider.GetService<TelemetryClient>();
                     telemetryClient.TrackTrace($"MessageRouter starting up on {Environment.MachineName}");
 
-                    messagerouter.Initiate(cts.Token);
-                    await WhenCancelled(cts.Token);
+                    await messagerouter.Initiate(cts.Token);
                 }
             }
         }
@@ -114,13 +112,6 @@
             module.Initialize(configuration);
 
             return module;
-        }
-
-        public static Task WhenCancelled(CancellationToken cancellationToken)
-        {
-            var tcs = new TaskCompletionSource<bool>();
-            cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).SetResult(true), tcs);
-            return tcs.Task;
         }
     }
 }
