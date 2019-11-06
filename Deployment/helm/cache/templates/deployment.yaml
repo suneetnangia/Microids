@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: cache
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       app: cache
@@ -13,7 +13,7 @@ spec:
         app: cache
     spec:
       containers:
-      - image: nginx:1.15.9
+      - image: {{ .Values.image.repository }}/cache:{{ .Values.image.tag}}
         name: cache
         resources:
           requests:
