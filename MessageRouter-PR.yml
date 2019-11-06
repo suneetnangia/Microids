@@ -12,7 +12,7 @@ steps:
     command: 'build'
     projects: |
       Microsoft.OneWeek.Hack.Microids.MessageRouter\Microsoft.OneWeek.Hack.Microids.MessageRouter.csproj
-      Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests\Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests.csproj
+#      Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests\Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests.csproj
 
 - task: VSTest@2
   inputs:
