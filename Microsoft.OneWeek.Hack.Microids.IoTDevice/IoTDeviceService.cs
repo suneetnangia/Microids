@@ -12,10 +12,10 @@ namespace Microsoft.OneWeek.Hack.Microids.IoTDevice
             this.deviceMetadataRepository = deviceMetadataRepository;
         }
 
-        public override Task<Metadata> GetMetadata(DeviceInfo request, ServerCallContext context)
+        public override Task<DeviceMetadata> GetMetadata(DeviceInfo request, ServerCallContext context)
         {
             var deviceMetadata = this.deviceMetadataRepository.GetMetadata(request.Id);
-            return Task.FromResult(new Metadata() { Capability = (int)deviceMetadata.Capabilities });
+            return Task.FromResult(new DeviceMetadata() { Capability = deviceMetadata.Capability });
         }
     }
 }

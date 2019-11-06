@@ -1,5 +1,7 @@
-namespace Microsoft.OneWeek.Hack.Microids.Core
+namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 {
+    using IoTDevice;
+
     public abstract class Message
     {
 

@@ -6,7 +6,6 @@ namespace Microsoft.OneWeek.Hack.Microids.IoTDevice
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Moq;
-    using Microsoft.OneWeek.Hack.Microids.Core;
 
     public class Startup
     {
@@ -15,12 +14,13 @@ namespace Microsoft.OneWeek.Hack.Microids.IoTDevice
         public void ConfigureServices(IServiceCollection services)
         {
             // Mocked device repositories for testing gRPC performance.
+
             var mockedDeviceMetadataRepository = new Mock<IDeviceMetadataRepository>();
             mockedDeviceMetadataRepository.Setup(device => device.GetMetadata("001"))
-                                    .Returns(new DeviceMetadata { Fqdn = "001.GB.London.Bld01", Capabilities = DeviceCapability.RotationSpeed | DeviceCapability.Temperature });
+                                    .Returns(new DeviceMetadata { Fqdn = "001.GB.London.Bld01", Capability = DeviceCapability.RotationSpeed });
 
             mockedDeviceMetadataRepository.Setup(device => device.GetMetadata("002"))
-                                    .Returns(new DeviceMetadata { Fqdn = "002.US.WA.Bld28", Capabilities = DeviceCapability.WindSpeed | DeviceCapability.RotationSpeed | DeviceCapability.Temperature });
+                                    .Returns(new DeviceMetadata { Fqdn = "002.US.WA.Bld28", Capability = DeviceCapability.WindSpeed });
 
             // Configure dependencies for the service.
             services.AddGrpc();

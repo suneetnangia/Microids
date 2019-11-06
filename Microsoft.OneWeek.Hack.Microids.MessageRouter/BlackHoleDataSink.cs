@@ -1,5 +1,4 @@
 using System;
-using Microsoft.OneWeek.Hack.Microids.Core;
 
 namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 {
