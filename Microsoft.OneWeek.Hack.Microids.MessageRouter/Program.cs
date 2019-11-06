@@ -10,7 +10,6 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.Extensions.Configuration;
-    using System.Net.Http;
 
     public class Program
     {
@@ -41,8 +40,6 @@
                 services.AddSingleton<IIoTDeviceDataEnricher>(new IoTDeviceGrpcDataEnricher());
                 services.AddSingleton<IConfiguration>(configuration);
                 services.AddSingleton<TelemetryClient>(ConstructTelemetryClient(configuration));
-
-                // TODO: confiure all services here e.g. IDataSink, IDataSource, IDeviceDataEnricher etc. 
 
                 // Dispose method of ServiceProvider will dispose all disposable objects constructed by it as well.
                 using (var serviceProvider = services.BuildServiceProvider())

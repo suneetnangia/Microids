@@ -23,7 +23,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                 var deviceId = e.Message.GetDeviceId();
 
                 // get the metadata
-                var metadata = this.dataEnricher.GetMetadata(deviceId);
+                var metadata = await this.dataEnricher.GetMetadataAsync(deviceId);
 
                 // enrich the message
                 e.Message.EnrichMessage(metadata);

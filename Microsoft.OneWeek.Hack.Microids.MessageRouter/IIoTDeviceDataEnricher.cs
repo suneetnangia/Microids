@@ -1,9 +1,10 @@
 namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 {
     using IoTDevice;
+    using System.Threading.Tasks;
 
     public interface IIoTDeviceDataEnricher
     {
-        DeviceMetadata GetMetadata(string id);
+        Task<DeviceMetadata> GetMetadataAsync(string id);
     }
 }

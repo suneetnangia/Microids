@@ -8,9 +8,10 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
         private string Desc { get; set; }
         private DeviceCapability Capabilities { get; set; }
 
-        public MessageTypeA(){}
+        public MessageTypeA() { }
 
-        public MessageTypeA(string Id, string Desc){
+        public MessageTypeA(string Id, string Desc)
+        {
             this.Id = Id;
             this.Desc = Desc;
         }
