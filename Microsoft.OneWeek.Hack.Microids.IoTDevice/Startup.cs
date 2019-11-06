@@ -1,11 +1,12 @@
 namespace Microsoft.OneWeek.Hack.Microids.IoTDevice
 {
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Moq;
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
+    using Moq;
+    using Microsoft.OneWeek.Hack.Microids.Core;
 
     public class Startup
     {
@@ -24,10 +25,10 @@ using Moq;
 
             var mockedDeviceMetadataRepository = new Mock<IDeviceMetadataRepository>();
             mockedDeviceMetadataRepository.Setup(device => device.GetMetadata("001.GB.London.Bld01"))
-                                    .Returns(new DeviceMetadata{ Fqdn = "001.GB.London.Bld01", Capabilities = DeviceCapability.RotationSpeed | DeviceCapability.Temperature } );
+                                    .Returns(new DeviceMetadata { Fqdn = "001.GB.London.Bld01", Capabilities = DeviceCapability.RotationSpeed | DeviceCapability.Temperature });
 
             mockedDeviceMetadataRepository.Setup(device => device.GetMetadata("002.US.WA.Bld28"))
-                                    .Returns(new DeviceMetadata{ Fqdn = "002.US.WA.Bld28", Capabilities = DeviceCapability.WindSpeed | DeviceCapability.RotationSpeed | DeviceCapability.Temperature } );
+                                    .Returns(new DeviceMetadata { Fqdn = "002.US.WA.Bld28", Capabilities = DeviceCapability.WindSpeed | DeviceCapability.RotationSpeed | DeviceCapability.Temperature });
 
             // Configure dependencies for the service.
             services.AddGrpc();
