@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: orchestrator
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       app: orchestrator
@@ -13,8 +13,15 @@ spec:
         app: orchestrator
     spec:
       containers:
-      - image: nginx:1.15.9
+      - image: {{ .Values.image.repository }}/orchestrator:{{ .Values.image.tag}}
         name: orchestrator
+        env:
+        - name: "GENERATE_MESSAGES_EVERY"
+          value: {{ .Values.GENERATE_MESSAGES_EVERY }}
+        - name: "NUM_MESSAGES_EACH_GENERATION"
+          value: {{ .Values.NUM_MESSAGES_EACH_GENERATION }}
+        - name: "CACHE_GRPC_ENDPOINT"
+          value: {{ .Values.CACHE_GRPC_ENDPOINT }}
         resources:
           requests:
             cpu: 100m
