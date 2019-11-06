@@ -2,19 +2,26 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 {
     using IoTDevice;
 
-    public class MessageTypeA : Message
+    public class MessageTypeA : IMessage
     {
+        private string Id { get; set; }
+        private string Desc { get; set; }
+        private DeviceCapability Capabilities { get; set; }
 
-        public string Id { get; set; }
-        public string Desc { get; set; }
-        public DeviceCapability Capabilities { get; set; }
+        public MessageTypeA() { }
 
-        public override void EnrichMessage(DeviceMetadata metadata)
+        public MessageTypeA(string Id, string Desc)
+        {
+            this.Id = Id;
+            this.Desc = Desc;
+        }
+
+        public void EnrichMessage(DeviceMetadata metadata)
         {
             this.Capabilities = metadata.Capability;
         }
 
-        public override string GetDeviceId()
+        public string GetDeviceId()
         {
             return this.Id;
         }

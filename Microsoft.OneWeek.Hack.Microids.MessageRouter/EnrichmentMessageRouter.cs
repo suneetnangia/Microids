@@ -29,7 +29,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                 e.Message.EnrichMessage(metadata);
 
                 // output the message
-                this.dataSink.WriteMessage(e.Message);
+                await this.dataSink.WriteMessageAsync(e.Message);
 
             };
         }
@@ -38,7 +38,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 
         public class MessageReceivedEventArgs : EventArgs
         {
-            public Message Message { get; set; }
+            public IMessage Message { get; set; }
         }
 
         protected virtual void OnMessageReceived(MessageReceivedEventArgs e)
@@ -90,11 +90,11 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 
         public void Initiate(CancellationToken ct)
         {
-            Timer timer = new Timer((_) =>
+            Timer timer = new Timer(async (_) =>
                {
                    for (int i = 0; i < NumMessagesEachGeneration; i++)
                    {
-                       var msg = this.dataSource.ReadMessage();
+                       var msg = await this.dataSource.ReadMessageAsync();
                        OnMessageReceived(new MessageReceivedEventArgs()
                        {
                            Message = msg
