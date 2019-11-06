@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 {
     public class TestGeneratorDataSource : IDataSource
@@ -5,16 +7,17 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 
         private int NextMessageId = 1;
 
-        Message IDataSource.ReadMessage()
+        Task<IMessage> IDataSource.ReadMessageAsync()
         {
-            var msg = new MessageTypeA()
-            {
-                Id = NextMessageId.ToString().PadLeft(3, '0'),
-                Desc = "Fake Message"
-            };
+            var msg = new MessageTypeA(
+                Id: NextMessageId.ToString().PadLeft(3, '0'),
+                Desc: "Fake Message"
+            );
+            
             NextMessageId++;
             if (NextMessageId > 2) NextMessageId = 1;
-            return msg;
+
+            return Task.FromResult((IMessage)msg);
         }
     }
 }
