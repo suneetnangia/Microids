@@ -1,25 +1,21 @@
 namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 {
     using System;
-    using Microsoft.OneWeek.Hack.Microids.IoTDevice;
+    using Microsoft.OneWeek.Hack.Microids.Core;
 
     // Enricher to call gRPC based data service.
     // Refactor the gRPC client sample code here.
     // TODO: Implement IDisposable pattern.
     public class IoTDeviceGrpcDataEnricher : IIoTDeviceDataEnricher
     {
-        public IoTDeviceGrpcDataEnricher(Uri dataServiceUri)
-        {       
+        public IoTDeviceGrpcDataEnricher()
+        {
         }
 
-        public string GetCanonicalId(string id)
+        public DeviceMetadata GetMetadata(string id)
         {
-            throw new System.NotImplementedException();
-        }
-
-        public Metadata GetMetadata(string canonicalId)
-        {
-            throw new System.NotImplementedException();
+            // TODO: use real method
+            return new DeviceMetadata() { Capabilities = DeviceCapability.Temperature };
         }
     }
 }

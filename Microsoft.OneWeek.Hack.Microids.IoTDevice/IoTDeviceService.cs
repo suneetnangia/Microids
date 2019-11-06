@@ -17,13 +17,13 @@ namespace Microsoft.OneWeek.Hack.Microids.IoTDevice
         public override Task<CanonicalId> GetCanonicalId(DeviceInfo request, ServerCallContext context)
         {
             var canonicalId = this.deviceLookupRepository.GetCanonicalId(request.Id);
-            return Task.FromResult(new CanonicalId{Id = canonicalId } );
+            return Task.FromResult(new CanonicalId { Id = canonicalId });
         }
 
         public override Task<Metadata> GetMetadata(DeviceInfo request, ServerCallContext context)
         {
             var deviceMetadata = this.deviceMetadataRepository.GetMetadata(request.Id);
-            return Task.FromResult(new Metadata() { Capability = (int) deviceMetadata.Capabilities });
+            return Task.FromResult(new Metadata() { Capability = (int)deviceMetadata.Capabilities });
         }
     }
 }
