@@ -34,12 +34,13 @@
 
                 // Bootstrap services using dependency injection.
                 var services = new ServiceCollection();
+                var telemetry = ConstructTelemetryClient(configuration);
+                services.AddSingleton<TelemetryClient>(telemetry);
                 services.AddSingleton<EnrichmentMessageRouter>();
                 services.AddSingleton<IDataSource>(new TestGeneratorDataSource());
                 services.AddSingleton<IDataSink>(new BlackHoleDataSink());
-                services.AddSingleton<IIoTDeviceDataEnricher>(new IoTDeviceGrpcDataEnricher());
+                services.AddSingleton<IIoTDeviceDataEnricher>(new IoTDeviceGrpcDataEnricher(telemetry));
                 services.AddSingleton<IConfiguration>(configuration);
-                services.AddSingleton<TelemetryClient>(ConstructTelemetryClient(configuration));
 
                 // Dispose method of ServiceProvider will dispose all disposable objects constructed by it as well.
                 using (var serviceProvider = services.BuildServiceProvider())
