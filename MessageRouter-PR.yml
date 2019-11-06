@@ -29,12 +29,3 @@ steps:
     configuration: Release
     publishTestResults: true
     projects: Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests/Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests.csproj
-
-#- task: VSTest@2
-#  inputs:
-#    testSelector: 'testAssemblies'
-#    testAssemblyVer2: |
-#      Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests\*test*.dll
-#      !**\*TestAdapter.dll
-#      !**\obj\**
-#    searchFolder: '$(System.DefaultWorkingDirectory)'      
