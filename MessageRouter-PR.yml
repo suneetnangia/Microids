@@ -19,8 +19,9 @@ steps:
     command: 'build'
     configuration: Release
     projects: |
-      /Microsoft.OneWeek.Hack.Microids.MessageRouter\Microsoft.OneWeek.Hack.Microids.MessageRouter.csproj
-      /Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests\Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests.csproj
+      'Microsoft.OneWeek.Hack.Microids.MessageRouter\Microsoft.OneWeek.Hack.Microids.MessageRouter.csproj'
+
+#      'Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests\Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests.csproj
 
 - task: DotNetCoreCLI@2
   displayName: 'Run unit test project'
@@ -28,7 +29,7 @@ steps:
     command: 'test'
     configuration: Release
     publishTestResults: true
-    projects: /Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests\Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests.csproj
+    projects: Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests\Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests.csproj
 
 #- task: VSTest@2
 #  inputs:
