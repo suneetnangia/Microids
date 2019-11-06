@@ -2,7 +2,9 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 {
     using Grpc.Core;
     using IoTDevice;
-    using System.Threading;
+    using Microsoft.ApplicationInsights;
+    using Microsoft.Extensions.Configuration;
+    using System;
     using System.Threading.Tasks;
 
     // Enricher to call gRPC based data service.
@@ -10,18 +12,24 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
     // TODO: Implement IDisposable pattern.
     public class IoTDeviceGrpcDataEnricher : IIoTDeviceDataEnricher
     {
-        public IoTDeviceGrpcDataEnricher()
+        private IConfiguration config;
+        private TelemetryClient telemetryClient;
+
+        public IoTDeviceGrpcDataEnricher(IConfiguration config, TelemetryClient telemetryClient)
         {
+            this.config = config;
+            this.telemetryClient = telemetryClient;
+
             //CACHE_GRPC_ENDPOINT
             Channel channel = new Channel("localhost:5000", ChannelCredentials.Insecure);
             this.Client = new IoTDevice.IoTDeviceClient(channel);
         }
 
-        private static string CacheGrpcEndpoint
+        private string CacheGrpcEndpoint
         {
             get
             {
-                string s = System.Environment.GetEnvironmentVariable("CACHE_GRPC_ENDPOINT");
+                string s = config.GetValue<string>("CACHE_GRPC_ENDPOINT");
                 if (string.IsNullOrEmpty(s)) return "localhost:5000";
                 return s;
             }
@@ -31,27 +39,27 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 
         public Task<DeviceMetadata> GetMetadataAsync(string id)
         {
-            /*
-            var mre = new ManualResetEventSlim();
+            var request = new DeviceInfo() { Id = id };
+
+            var success = false;
+            var startTime = DateTime.UtcNow;
+            var timer = System.Diagnostics.Stopwatch.StartNew();
+
             try
             {
-                 */
-            var request = new DeviceInfo() { Id = id };
-            return this.Client.GetMetadataAsync(request).ResponseAsync;
-            /*
-        }
-        catch (RpcException ex)
-        {
-            if (ex.StatusCode == StatusCode.Unavailable)
-            {
-
+                return this.Client.GetMetadataAsync(request).ResponseAsync;
             }
-            else
+            catch (Exception ex)
             {
-                throw ex;
+                success = false;
+                telemetryClient.TrackException(ex);
+                throw new Exception("Operation went wrong", ex);
             }
-        }
-         */
+            finally
+            {
+                timer.Stop();
+                telemetryClient.TrackDependency("gRPC call", "IoTClient", "GetMetadataAzync", startTime, timer.Elapsed, success);
+            }
         }
     }
 }
