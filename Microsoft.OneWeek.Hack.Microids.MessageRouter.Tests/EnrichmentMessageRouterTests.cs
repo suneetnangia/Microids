@@ -15,6 +15,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests
             var TOTAL_MESSAGES = 10;
             var deliveredMessages = 0;
             var receivedMessages = 0;
+            var enrichedMessages = 0;
 
             var mockDataSink = new Mock<IDataSink>();
             var mockDataSource = new Mock<IDataSource>();
@@ -28,8 +29,15 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests
                 .Setup(x => x.ReadMessageAsync())
                 .Callback(() => deliveredMessages++)
                 .Returns(Task.FromResult((IMessage)new MessageTypeA(Id: "1", Desc: "Testing")));
+            
+            mockDataEnricher
+                .Setup(x => x.GetMetadataAsync(It.IsAny<string>()))
+                .Callback(() => enrichedMessages++)
+                .Returns(Task.FromResult(new IoTDevice.DeviceMetadata()));
 
-            var router = new EnrichmentMessageRouter(mockDataSource.Object, mockDataSink.Object, mockDataEnricher.Object);
+            var router = new EnrichmentMessageRouter(mockDataSource.Object, 
+                mockDataSink.Object, 
+                mockDataEnricher.Object);
 
             // Act
             var ct = new CancellationTokenSource();
@@ -47,6 +55,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests
             // Assert
             Assert.Equal(TOTAL_MESSAGES, deliveredMessages);
             Assert.Equal(TOTAL_MESSAGES, receivedMessages);
+            Assert.Equal(TOTAL_MESSAGES, enrichedMessages);
         }
     }
 }
