@@ -2,6 +2,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 {
     using System;
     using System.Threading;
+    using Microsoft.Extensions.Configuration;
 
     public class EnrichmentMessageRouter
     {
@@ -9,11 +10,15 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
         private IDataSource dataSource;
         private IDataSink dataSink;
 
-        public EnrichmentMessageRouter(IDataSource dataSource, IDataSink dataSink, IIoTDeviceDataEnricher dataEnricher)
+        private IConfiguration config;
+
+        public EnrichmentMessageRouter(IDataSource dataSource, IDataSink dataSink, IIoTDeviceDataEnricher dataEnricher, IConfiguration config)
         {
             this.dataSource = dataSource;
             this.dataSink = dataSink;
             this.dataEnricher = dataEnricher;
+
+            this.config = config;
 
             // handle messages as they arrive
             this.MessageReceived += async (sender, e) =>
@@ -60,11 +65,11 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
             }
         }
 
-        private static int GenerateMessagesEvery
+        private int GenerateMessagesEvery
         {
             get
             {
-                string s = System.Environment.GetEnvironmentVariable("GENERATE_MESSAGES_EVERY");
+                string s = config.GetValue<string>("GENERATE_MESSAGES_EVERY");
                 if (int.TryParse(s, out int i))
                 {
                     return i;
@@ -76,11 +81,11 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
             }
         }
 
-        private static int NumMessagesEachGeneration
+        private int NumMessagesEachGeneration
         {
             get
             {
-                string s = System.Environment.GetEnvironmentVariable("NUM_MESSAGES_EACH_GENERATION");
+                string s = config.GetValue<string>("NUM_MESSAGES_EACH_GENERATION");
                 if (int.TryParse(s, out int i))
                 {
                     return i;

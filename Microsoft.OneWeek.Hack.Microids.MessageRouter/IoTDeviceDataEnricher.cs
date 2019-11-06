@@ -3,28 +3,34 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
     using System;
     using Grpc.Core;
     using IoTDevice;
-    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights;
+    using Microsoft.Extensions.Configuration;
+    using System.Threading.Tasks;
 
     // Enricher to call gRPC based data service.
     // Refactor the gRPC client sample code here.
     // TODO: Implement IDisposable pattern.
     public class IoTDeviceGrpcDataEnricher : IIoTDeviceDataEnricher
     {
-        public IoTDeviceGrpcDataEnricher(TelemetryClient telemetry)
+
+        private IConfiguration config;
+        private TelemetryClient telemetryClient;
+
+        public IoTDeviceGrpcDataEnricher(IConfiguration config, TelemetryClient telemetryClient)
         {
-            this.Telemetry = telemetry;
+            this.config = config;
+            this.telemetryClient = telemetryClient;
+
+            //CACHE_GRPC_ENDPOINT
             Channel channel = new Channel("localhost:5000", ChannelCredentials.Insecure);
             this.Client = new IoTDevice.IoTDeviceClient(channel);
         }
 
-        private TelemetryClient Telemetry;
-
-        private static string CacheGrpcEndpoint
+        private string CacheGrpcEndpoint
         {
             get
             {
-                string s = System.Environment.GetEnvironmentVariable("CACHE_GRPC_ENDPOINT");
+                string s = config.GetValue<string>("CACHE_GRPC_ENDPOINT");
                 if (string.IsNullOrEmpty(s)) return "localhost:5000";
                 return s;
             }
@@ -59,7 +65,10 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
         public async Task<DeviceMetadata> GetMetadataAsync(string id)
         {
             if (FailedToDispatch) return null; // drop new messages if there is a dispatch problem
+            bool success = false;
             int current = 0;
+            var startTime = DateTime.UtcNow;
+            var timer = System.Diagnostics.Stopwatch.StartNew();
             while (true)
             {
                 try
@@ -68,9 +77,10 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                     var response = await this.Client.GetMetadataAsync(request);
                     if (FailedToDispatch)
                     {
-                        Telemetry.TrackEvent($"gRPC client connected successfully from {System.Environment.MachineName}.");
+                        telemetryClient.TrackEvent($"gRPC client connected successfully from {System.Environment.MachineName}.");
                         FailedToDispatch = false;
                     }
+                    success = true;
                     return response;
                 }
                 catch (RpcException ex)
@@ -78,18 +88,24 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                     if (ex.StatusCode == StatusCode.Unavailable)
                     {
                         Console.WriteLine("gRPC client failed to connect...");
-                        Telemetry.TrackEvent($"gRPC client failed to connect from {System.Environment.MachineName}.");
+                        telemetryClient.TrackEvent($"gRPC client failed to connect from {System.Environment.MachineName}.");
                         FailedToDispatch = true;
                     }
                     else
                     {
+                        telemetryClient.TrackException(ex);
                         throw ex;
                     }
+                }
+                finally
+                {
+                    timer.Stop();
+                    telemetryClient.TrackDependency("gRPC call", "IoTClient", "GetMetadataAzync", startTime, timer.Elapsed, success);
                 }
                 current += 1000;
                 if (current > CacheGrpcTimeout)
                 {
-                    Telemetry.TrackEvent($"gRPC client timed out from {System.Environment.MachineName}.");
+                    telemetryClient.TrackEvent($"gRPC client timed out from {System.Environment.MachineName}.");
                     throw new Exception("gRPC client timed out.");
                 }
                 await Task.Delay(1000);

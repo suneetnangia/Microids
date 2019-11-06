@@ -12,14 +12,12 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests
         [Fact]
         public async void VerifyMockDataSinkDoesNotThrow()
         {
-            var myConfiguration = new Dictionary<string, string>
+            var configValues = new Dictionary<string, string>
             {
                 {ConfigKey, "Test Config Value"},
             };
 
-            var config = new ConfigurationBuilder()
-                    .AddInMemoryCollection(myConfiguration)
-                    .Build();
+            var config = ConfigHelper.CreateConfig(configValues);
 
             var mockDataSink = new Mock<IDataSink>();
             mockDataSink.Setup(x => x.WriteMessageAsync(It.IsAny<IMessage>()));
