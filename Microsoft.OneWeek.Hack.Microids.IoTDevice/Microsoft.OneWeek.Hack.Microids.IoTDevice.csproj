@@ -12,6 +12,5 @@
     <PackageReference Include="Grpc.AspNetCore" Version="2.24.0"/>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.9.5"/>
     <PackageReference Include="moq" Version="4.13.1"/>
-    <PackageReference Include="Microids.Core" Version="*"/>
   </ItemGroup>
 </Project>

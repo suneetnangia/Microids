@@ -1,5 +1,4 @@
 **/*.env
-**/nuget.config
 
 .vscode/*
 !.vscode/settings.json
