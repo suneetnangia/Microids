@@ -87,8 +87,6 @@ namespace Microsoft.OneWeek.Hack.Microids.Common
             var message = formatter(state, exception);
             if (!string.IsNullOrEmpty(message))
             {
-
-                // write the message
                 var sb = new StringBuilder();
                 var logLevelColors = GetLogLevelConsoleColors(logLevel);
                 if (!_config.DisableColors && logLevelColors.Foreground != null) sb.Append(logLevelColors.Foreground);
@@ -99,7 +97,6 @@ namespace Microsoft.OneWeek.Hack.Microids.Common
                 sb.Append($" {DateTime.UtcNow.ToString()} {message}");
                 Queue.Add(sb.ToString());
                 StartDispatcher();
-
             }
 
             // write the exception
@@ -107,7 +104,6 @@ namespace Microsoft.OneWeek.Hack.Microids.Common
             {
                 Console.WriteLine(exception.ToString());
             }
-
         }
 
         private static string GetLogLevelString(LogLevel logLevel)
