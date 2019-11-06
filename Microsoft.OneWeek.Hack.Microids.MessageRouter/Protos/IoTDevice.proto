@@ -23,5 +23,6 @@ enum DeviceCapability {
 
 // The response message containing the device metadata.
 message DeviceMetadata {
-      DeviceCapability capability = 1;
+    DeviceCapability capability = 1;
+    string Fqdn = 2;
 }
