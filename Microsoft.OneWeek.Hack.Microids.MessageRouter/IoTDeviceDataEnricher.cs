@@ -2,7 +2,9 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 {
     using Grpc.Core;
     using IoTDevice;
+    using Microsoft.ApplicationInsights;
     using Microsoft.Extensions.Configuration;
+    using System;
     using System.Threading.Tasks;
 
     // Enricher to call gRPC based data service.
@@ -11,10 +13,12 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
     public class IoTDeviceGrpcDataEnricher : IIoTDeviceDataEnricher
     {
         private IConfiguration config;
+        private TelemetryClient telemetryClient;
 
-        public IoTDeviceGrpcDataEnricher(IConfiguration config)
+        public IoTDeviceGrpcDataEnricher(IConfiguration config, TelemetryClient telemetryClient)
         {
             this.config = config;
+            this.telemetryClient = telemetryClient;
 
             //CACHE_GRPC_ENDPOINT
             Channel channel = new Channel("localhost:5000", ChannelCredentials.Insecure);
@@ -36,7 +40,26 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
         public Task<DeviceMetadata> GetMetadataAsync(string id)
         {
             var request = new DeviceInfo() { Id = id };
-            return this.Client.GetMetadataAsync(request).ResponseAsync;
+
+            var success = false;
+            var startTime = DateTime.UtcNow;
+            var timer = System.Diagnostics.Stopwatch.StartNew();
+
+            try
+            {
+                return this.Client.GetMetadataAsync(request).ResponseAsync;
+            }
+            catch (Exception ex)
+            {
+                success = false;
+                telemetryClient.TrackException(ex);
+                throw new Exception("Operation went wrong", ex);
+            }
+            finally
+            {
+                timer.Stop();
+                telemetryClient.TrackDependency("gRPC call", "IoTClient", "GetMetadataAzync", startTime, timer.Elapsed, success);
+            }
         }
     }
 }
