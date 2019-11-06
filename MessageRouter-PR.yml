@@ -10,15 +10,23 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
+    configuration: Release
     projects: |
       Microsoft.OneWeek.Hack.Microids.MessageRouter\Microsoft.OneWeek.Hack.Microids.MessageRouter.csproj
-#      Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests\Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests.csproj
 
-- task: VSTest@2
+- task: DotNetCoreCLI@2
+  displayName: 'Run unit test project'
   inputs:
-    testSelector: 'testAssemblies'
-    testAssemblyVer2: |
-      Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests\*test*.dll
-      !**\*TestAdapter.dll
-      !**\obj\**
-    searchFolder: '$(System.DefaultWorkingDirectory)'      
+    command: 'test'
+    configuration: Release
+    publishTestResults: true
+    projects: Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests\Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests.csproj
+
+#- task: VSTest@2
+#  inputs:
+#    testSelector: 'testAssemblies'
+#    testAssemblyVer2: |
+#      Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests\*test*.dll
+#      !**\*TestAdapter.dll
+#      !**\obj\**
+#    searchFolder: '$(System.DefaultWorkingDirectory)'      
