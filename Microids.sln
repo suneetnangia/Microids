@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.OneWeek.Hack.Micr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests", "Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests\Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests.csproj", "{DD813743-23F5-47C0-8046-023B813EB5CC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.OneWeek.Hack.Microids.IoTDevice.Metadata.Restful", "Microsoft.OneWeek.Hack.Microids.IoTDevice.Metadata.Restful\Microsoft.OneWeek.Hack.Microids.IoTDevice.Metadata.Restful.csproj", "{360BDD84-AAE2-4841-8623-375568A82950}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -58,5 +60,17 @@ Global
 		{DD813743-23F5-47C0-8046-023B813EB5CC}.Release|x64.Build.0 = Release|Any CPU
 		{DD813743-23F5-47C0-8046-023B813EB5CC}.Release|x86.ActiveCfg = Release|Any CPU
 		{DD813743-23F5-47C0-8046-023B813EB5CC}.Release|x86.Build.0 = Release|Any CPU
+		{360BDD84-AAE2-4841-8623-375568A82950}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{360BDD84-AAE2-4841-8623-375568A82950}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{360BDD84-AAE2-4841-8623-375568A82950}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{360BDD84-AAE2-4841-8623-375568A82950}.Debug|x64.Build.0 = Debug|Any CPU
+		{360BDD84-AAE2-4841-8623-375568A82950}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{360BDD84-AAE2-4841-8623-375568A82950}.Debug|x86.Build.0 = Debug|Any CPU
+		{360BDD84-AAE2-4841-8623-375568A82950}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{360BDD84-AAE2-4841-8623-375568A82950}.Release|Any CPU.Build.0 = Release|Any CPU
+		{360BDD84-AAE2-4841-8623-375568A82950}.Release|x64.ActiveCfg = Release|Any CPU
+		{360BDD84-AAE2-4841-8623-375568A82950}.Release|x64.Build.0 = Release|Any CPU
+		{360BDD84-AAE2-4841-8623-375568A82950}.Release|x86.ActiveCfg = Release|Any CPU
+		{360BDD84-AAE2-4841-8623-375568A82950}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
