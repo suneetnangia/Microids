@@ -1,10 +1,10 @@
 namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 {
+    using System;
     using System.Threading;
-    using Microsoft.OneWeek.Hack.Microids.IoTDevice;
+    using Microsoft.OneWeek.Hack.Microids.Core;
 
-    // TODO: Potentially can be optimised using generics.
-    public abstract class EnrichmentMessageRouter
+    public class EnrichmentMessageRouter
     {
         private IIoTDeviceDataEnricher dataEnricher;
         private IDataSource dataSource;
@@ -15,23 +15,100 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
             this.dataSource = dataSource;
             this.dataSink = dataSink;
             this.dataEnricher = dataEnricher;
+
+            // handle messages as they arrive
+            this.MessageReceived += (sender, e) =>
+            {
+
+                // get the device id
+                var deviceId = e.Message.GetDeviceId();
+
+                // get the metadata
+                var metadata = this.dataEnricher.GetMetadata(deviceId);
+
+                // enrich the message
+                e.Message.EnrichMessage(metadata);
+
+                // output the message
+                this.dataSink.WriteMessage(e.Message);
+
+            };
         }
 
-        public void ReadMessage()
+        public event EventHandler<MessageReceivedEventArgs> MessageReceived;
+
+        public class MessageReceivedEventArgs : EventArgs
         {
-            var message = this.dataSource.ReadMessage();
-            var deviceId = this.ReturnDeviceId(message);
-            var deviceCanonicalId = this.dataEnricher.GetCanonicalId(deviceId);
-            var deviceMetada = this.dataEnricher.GetMetadata(deviceCanonicalId);
-
-            var enrichedMessage = this.EnrichMessage(message, deviceCanonicalId, deviceMetada);
-            this.dataSink.WriteMessage(enrichedMessage);
+            public Message Message { get; set; }
         }
 
-        protected abstract string ReturnDeviceId(string message);
-        
-        protected abstract string EnrichMessage(string message, string deviceId, Metadata deviceMetada);
+        protected virtual void OnMessageReceived(MessageReceivedEventArgs e)
+        {
+            try
+            {
+                EventHandler<MessageReceivedEventArgs> handler = MessageReceived;
+                handler?.Invoke(this, e);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception raised OnMessageReceived...");
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+            }
+        }
 
-        public abstract void Initiate(CancellationToken ct);
+        private int GenerateMessagesEvery
+        {
+            get
+            {
+                string s = System.Environment.GetEnvironmentVariable("GENERATE_MESSAGES_EVERY");
+                if (int.TryParse(s, out int i))
+                {
+                    return i;
+                }
+                else
+                {
+                    return 1000;
+                }
+            }
+        }
+
+        private int NumMessagesEachGeneration
+        {
+            get
+            {
+                string s = System.Environment.GetEnvironmentVariable("NUM_MESSAGES_EACH_GENERATION");
+                if (int.TryParse(s, out int i))
+                {
+                    return i;
+                }
+                else
+                {
+                    return 1;
+                }
+            }
+        }
+
+        public void Initiate(CancellationToken ct)
+        {
+            Timer timer = new Timer((_) =>
+               {
+                   for (int i = 0; i < NumMessagesEachGeneration; i++)
+                   {
+                       var msg = this.dataSource.ReadMessage();
+                       OnMessageReceived(new MessageReceivedEventArgs()
+                       {
+                           Message = msg
+                       });
+                   }
+               }, null, GenerateMessagesEvery, GenerateMessagesEvery);
+            while (!ct.IsCancellationRequested)
+            {
+                // let the timer run
+            }
+            timer.Change(0, 0);
+            timer.Dispose();
+        }
+
     }
 }

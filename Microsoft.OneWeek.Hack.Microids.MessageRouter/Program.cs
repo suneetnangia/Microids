@@ -5,12 +5,17 @@
     using System.Threading;
     using System.Runtime.Loader;
     using Microsoft.Extensions.DependencyInjection;
+    using dotenv.net;
 
     public class Program
     {
         // TODO: Async 
         public static async Task Main(string[] args)
         {
+
+            // load configuration
+            DotEnv.Config(false);
+
             // Wait until the app unloads or is cancelled by external triggers, use it for exceptional scnearios only.
             using (var cts = new CancellationTokenSource())
             {
@@ -20,7 +25,10 @@
 
                 // Bootstrap services using dependency injection.
                 var services = new ServiceCollection();
-                // TODO: confiure all services here e.g. IDataSink, IDataSource, IDeviceDataEnricher etc. 
+                services.AddSingleton<EnrichmentMessageRouter>();
+                services.AddSingleton<IDataSource>(new TestGeneratorDataSource());
+                services.AddSingleton<IDataSink>(new BlackHoleDataSink());
+                services.AddSingleton<IIoTDeviceDataEnricher>(new IoTDeviceGrpcDataEnricher());
 
                 // Dispose method of ServiceProvider will dispose all disposable objects constructed by it as well.
                 using (var serviceProvider = services.BuildServiceProvider())
@@ -29,7 +37,7 @@
                     var messagerouter = serviceProvider.GetService<EnrichmentMessageRouter>();
                     messagerouter.Initiate(cts.Token);
 
-                    await WhenCancelled(cts.Token);        
+                    await WhenCancelled(cts.Token);
                 }
             }
         }
