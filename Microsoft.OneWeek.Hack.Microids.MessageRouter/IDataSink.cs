@@ -1,9 +1,9 @@
+using System.Threading.Tasks;
 
 namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 {
-
     public interface IDataSink
     {
-        void WriteMessage(Message message);
+        Task WriteMessageAsync(IMessage message);
     }
 }

@@ -10,7 +10,6 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.Extensions.Configuration;
-    using System.Net.Http;
 
     public class Program
     {
@@ -42,23 +41,36 @@
                 services.AddSingleton<IConfiguration>(configuration);
                 services.AddSingleton<TelemetryClient>(ConstructTelemetryClient(configuration));
 
-                // TODO: confiure all services here e.g. IDataSink, IDataSource, IDeviceDataEnricher etc. 
-
                 // Dispose method of ServiceProvider will dispose all disposable objects constructed by it as well.
                 using (var serviceProvider = services.BuildServiceProvider())
                 {
                     // Get a new message router object.
                     var messagerouter = serviceProvider.GetService<EnrichmentMessageRouter>();
+
+                    var httpClient = new System.Net.Http.HttpClient();
+                    var resp = await httpClient.GetAsync("https://www.microsoft.com");
+                    Console.WriteLine(await resp.Content.ReadAsStringAsync());
+
                     messagerouter.Initiate(cts.Token);
                     await WhenCancelled(cts.Token);
                 }
             }
         }
 
+        private static string AppInsightsKey
+        {
+            get
+            {
+                string s = System.Environment.GetEnvironmentVariable("APPINSIGHTS_KEY");
+                return s;
+            }
+        }
+
         private static TelemetryClient ConstructTelemetryClient(IConfiguration config)
         {
             TelemetryConfiguration configuration = TelemetryConfiguration.CreateDefault();
-            configuration.InstrumentationKey = config.GetValue<string>("AppInsightsKey");
+            configuration.InstrumentationKey = AppInsightsKey;
+            Console.WriteLine($"InstrumentationKey={configuration.InstrumentationKey}");
             configuration.TelemetryInitializers.Add(new HttpDependenciesParsingTelemetryInitializer());
             InitializeDependencyTracking(configuration);
 
