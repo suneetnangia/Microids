@@ -1,5 +1,7 @@
-namespace Microsoft.OneWeek.Hack.Microids.Core
+namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 {
+    using IoTDevice;
+
     public class MessageTypeA : Message
     {
         public string Id { get; set; }
@@ -8,7 +10,7 @@ namespace Microsoft.OneWeek.Hack.Microids.Core
 
         public override void EnrichMessage(DeviceMetadata metadata)
         {
-            this.Capabilities = metadata.Capabilities;
+            this.Capabilities = metadata.Capability;
         }
 
         public override string GetDeviceId()
@@ -21,4 +23,5 @@ namespace Microsoft.OneWeek.Hack.Microids.Core
             return $"Id: {Id}, Desc: {Desc}, Capabilities: {Capabilities}";
         }
     }
+
 }
