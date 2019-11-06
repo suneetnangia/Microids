@@ -15,24 +15,15 @@ namespace Microsoft.OneWeek.Hack.Microids.IoTDevice
         public void ConfigureServices(IServiceCollection services)
         {
             // Mocked device repositories for testing gRPC performance.
-
-            var mockedDeviceLookupRepository = new Mock<IDeviceLookupRepository>();
-            mockedDeviceLookupRepository.Setup(device => device.GetCanonicalId("001"))
-                                    .Returns("001.GB.London.Bld01");
-
-            mockedDeviceLookupRepository.Setup(device => device.GetCanonicalId("002"))
-                                    .Returns("002.US.WA.Bld28");
-
             var mockedDeviceMetadataRepository = new Mock<IDeviceMetadataRepository>();
-            mockedDeviceMetadataRepository.Setup(device => device.GetMetadata("001.GB.London.Bld01"))
+            mockedDeviceMetadataRepository.Setup(device => device.GetMetadata("001"))
                                     .Returns(new DeviceMetadata { Fqdn = "001.GB.London.Bld01", Capabilities = DeviceCapability.RotationSpeed | DeviceCapability.Temperature });
 
-            mockedDeviceMetadataRepository.Setup(device => device.GetMetadata("002.US.WA.Bld28"))
+            mockedDeviceMetadataRepository.Setup(device => device.GetMetadata("002"))
                                     .Returns(new DeviceMetadata { Fqdn = "002.US.WA.Bld28", Capabilities = DeviceCapability.WindSpeed | DeviceCapability.RotationSpeed | DeviceCapability.Temperature });
 
             // Configure dependencies for the service.
             services.AddGrpc();
-            services.AddSingleton<IDeviceLookupRepository>(mockedDeviceLookupRepository.Object);
             services.AddSingleton<IDeviceMetadataRepository>(mockedDeviceMetadataRepository.Object);
         }
 
