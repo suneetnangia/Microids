@@ -17,7 +17,6 @@ steps:
     inputs:
       command: 'build'
       configuration: ${{ parameters.buildConfiguration }}
-      projects: |
       projects: ${{ buildProject }}
 
 - ${{ each testProject in parameters.testProjects }}:
