@@ -1,0 +1,23 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  iot_imageName: 'iotdevice'
+  router_imageName: 'messagerouter'
+
+steps:
+- task: Docker@2
+  displayName: Build an image
+  inputs:
+    repository: $(iot_imageName)
+    command: build
+    Dockerfile: Microsoft.OneWeek.Hack.Microids.IoTDevice/Dockerfile
+- task: Docker@2
+  displayName: Build an image
+  inputs:
+    repository: $(router_imageName)
+    command: build
+    Dockerfile: Microsoft.OneWeek.Hack.Microids.MessageRouter/Dockerfile
