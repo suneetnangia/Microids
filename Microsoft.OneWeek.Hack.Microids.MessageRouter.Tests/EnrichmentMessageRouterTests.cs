@@ -33,7 +33,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests
 
             // Act
             var ct = new CancellationTokenSource();
-            Task.Run(() => {
+            var task = Task.Run(() => {
                 router.Initiate(ct.Token);
             });
 
