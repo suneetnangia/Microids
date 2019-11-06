@@ -3,6 +3,7 @@ using Xunit;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests
 {
@@ -15,6 +16,8 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests
             var TOTAL_MESSAGES = 10;
             var deliveredMessages = 0;
             var receivedMessages = 0;
+
+            var config = ConfigHelper.CreateConfig(new Dictionary<string, string>());
 
             var mockDataSink = new Mock<IDataSink>();
             var mockDataSource = new Mock<IDataSource>();
@@ -29,7 +32,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests
                 .Callback(() => deliveredMessages++)
                 .Returns(Task.FromResult((IMessage)new MessageTypeA(Id: "1", Desc: "Testing")));
 
-            var router = new EnrichmentMessageRouter(mockDataSource.Object, mockDataSink.Object, mockDataEnricher.Object);
+            var router = new EnrichmentMessageRouter(mockDataSource.Object, mockDataSink.Object, mockDataEnricher.Object, config);
 
             // Act
             var ct = new CancellationTokenSource();
