@@ -49,6 +49,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 
                         // send the telemetry
                         timer.Stop();
+                        logger.LogDebug($"gRPC call took {timer.Elapsed.Milliseconds} ms");
                         telemetryClient.TrackDependency("gRPC call", "IoTClient", "GetMetadataAzync", startTime, timer.Elapsed, true);
 
                     }
@@ -118,7 +119,8 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 
         public Task Initiate(CancellationToken ct)
         {
-            return Task.Run(() => {
+            return Task.Run(() =>
+            {
                 Timer timer = new Timer(async (_) =>
                 {
                     for (int i = 0; i < NumMessagesEachGeneration; i++)
@@ -131,7 +133,8 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                     }
                 }, null, GenerateMessagesEvery, GenerateMessagesEvery);
 
-                while (!ct.IsCancellationRequested){
+                while (!ct.IsCancellationRequested)
+                {
                     Thread.Sleep(TimeSpan.FromSeconds(.250));
                 }
             }, ct);
