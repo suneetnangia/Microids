@@ -181,6 +181,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                             if (stopwatch.ElapsedMilliseconds > MaxWaitToAddMessages) throw new Exception("MAX_WAIT_TO_ADD_MESSAGES was exceeded.");
                             await Task.Delay(10);
                         }
+                        stopwatch.Stop();
 
                         // generate the messages
                         var msgs = new List<IMessage>();
