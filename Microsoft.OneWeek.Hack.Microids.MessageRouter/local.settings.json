@@ -1,5 +1,5 @@
 ﻿{
-  "APPINSIGHTS_KEY": "aa1bf96c-caf6-43fd-91e8-6cd6c225c67e",
+  "APPINSIGHTS_KEY": "",
   "PROTOCOL": "REST",
   "REST_SERVICE_URL": "http://localhost:58700/"
 }
