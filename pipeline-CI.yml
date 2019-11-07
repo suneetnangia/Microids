@@ -9,19 +9,28 @@ pool:
 
 variables:
   iot_imageName: 'iotdevice'
+  iot_rest_imageName: 'iotdevicerestful'
   router_imageName: 'messagerouter'
 
 steps:
 - task: Docker@2
-  displayName: Build and push IoT Device Image
+  displayName: Build and Push IoT Device Image
   inputs:
     repository: $(iot_imageName)
     command: buildAndPush
     Dockerfile: Microsoft.OneWeek.Hack.Microids.IoTDevice/Dockerfile
     containerRegistry: 'Azure CR'
+
+- task: Docker@2
+  displayName: Build and Push Restful IoT Device Image
+  inputs:
+    repository: $(iot_rest_imageName)
+    command: buildAndPush
+    Dockerfile: Microsoft.OneWeek.Hack.Microids.IoTDevice.Metadata.Restful/Dockerfile
+    containerRegistry: 'Azure CR'
     
 - task: Docker@2
-  displayName: Build and push Message Router Image
+  displayName: Build and Push Message Router Image
   inputs:
     repository: $(router_imageName)
     command: buildAndPush
