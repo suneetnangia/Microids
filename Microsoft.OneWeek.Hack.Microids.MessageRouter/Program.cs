@@ -6,9 +6,6 @@
     using System.Runtime.Loader;
     using Microsoft.Extensions.DependencyInjection;
     using dotenv.net;
-    using Microsoft.ApplicationInsights;
-    using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Microids.Common;

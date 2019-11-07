@@ -46,7 +46,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
             {
                 if (cacheGrpcTimeout == 0)
                 {
-                    string s = System.Environment.GetEnvironmentVariable("CACHE_GRPC_TIMEOUT");
+                    string s = config.GetValue<string>("CACHE_GRPC_TIMEOUT");
                     if (int.TryParse(s, out int i))
                     {
                         cacheGrpcTimeout = i;
