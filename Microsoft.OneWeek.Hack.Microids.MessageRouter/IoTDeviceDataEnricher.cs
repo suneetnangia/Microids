@@ -15,10 +15,10 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
     {
 
         private IConfiguration config;
-        private TelemetryClient telemetryClient;
+        private ITelemetryClient telemetryClient;
         private ILogger<IoTDeviceGrpcDataEnricher> logger;
 
-        public IoTDeviceGrpcDataEnricher(TelemetryClient telemetryClient, IConfiguration config, ILogger<IoTDeviceGrpcDataEnricher> logger)
+        public IoTDeviceGrpcDataEnricher(ITelemetryClient telemetryClient, IConfiguration config, ILogger<IoTDeviceGrpcDataEnricher> logger)
         {
             this.telemetryClient = telemetryClient;
             this.config = config;
@@ -67,10 +67,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
         public async Task<DeviceMetadata> GetMetadataAsync(string id)
         {
             if (FailedToDispatch) return null; // drop new messages if there is a dispatch problem
-            bool success = false;
             int current = 0;
-            var startTime = DateTime.UtcNow;
-            var timer = System.Diagnostics.Stopwatch.StartNew();
             while (true)
             {
                 try
@@ -83,7 +80,6 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                         telemetryClient.TrackEvent($"gRPC client connected successfully from {System.Environment.MachineName}.");
                         FailedToDispatch = false;
                     }
-                    success = true;
                     return response;
                 }
                 catch (RpcException ex)
@@ -99,11 +95,6 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                         telemetryClient.TrackException(ex);
                         throw ex;
                     }
-                }
-                finally
-                {
-                    timer.Stop();
-                    telemetryClient.TrackDependency("gRPC call", "IoTClient", "GetMetadataAzync", startTime, timer.Elapsed, success);
                 }
                 current += 1000;
                 if (current > CacheGrpcTimeout)

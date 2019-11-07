@@ -5,20 +5,23 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.ApplicationInsights;
 
     public class EnrichmentMessageRouter
     {
         private IIoTDeviceDataEnricher dataEnricher;
         private IDataSource dataSource;
         private IDataSink dataSink;
+        private ITelemetryClient telemetryClient;
         private ILogger<EnrichmentMessageRouter> logger;
         private IConfiguration config;
 
-        public EnrichmentMessageRouter(IDataSource dataSource, IDataSink dataSink, IIoTDeviceDataEnricher dataEnricher, IConfiguration config, ILogger<EnrichmentMessageRouter> logger)
+        public EnrichmentMessageRouter(IDataSource dataSource, IDataSink dataSink, IIoTDeviceDataEnricher dataEnricher, ITelemetryClient telemetryClient, IConfiguration config, ILogger<EnrichmentMessageRouter> logger)
         {
             this.dataSource = dataSource;
             this.dataSink = dataSink;
             this.dataEnricher = dataEnricher;
+            this.telemetryClient = telemetryClient;
             this.logger = logger;
             this.config = config;
 
@@ -30,17 +33,33 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                 var deviceId = e.Message.GetDeviceId();
 
                 // get the metadata
-                var metadata = await this.dataEnricher.GetMetadataAsync(deviceId);
-                if (metadata != null)
+                var startTime = DateTime.UtcNow;
+                var timer = System.Diagnostics.Stopwatch.StartNew();
+                try
                 {
+                    var metadata = await this.dataEnricher.GetMetadataAsync(deviceId);
+                    if (metadata != null)
+                    {
 
-                    // enrich the message
-                    e.Message.EnrichMessage(metadata);
+                        // enrich the message
+                        e.Message.EnrichMessage(metadata);
 
-                    // output the message
-                    await this.dataSink.WriteMessageAsync(e.Message);
+                        // output the message
+                        await this.dataSink.WriteMessageAsync(e.Message);
 
+                        // send the telemetry
+                        timer.Stop();
+                        telemetryClient.TrackDependency("gRPC call", "IoTClient", "GetMetadataAzync", startTime, timer.Elapsed, true);
+
+                    }
                 }
+                catch
+                {
+                    // send the telemetry
+                    timer.Stop();
+                    telemetryClient.TrackDependency("gRPC call", "IoTClient", "GetMetadataAzync", startTime, timer.Elapsed, false);
+                }
+
 
             };
         }
