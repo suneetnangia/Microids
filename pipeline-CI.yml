@@ -21,7 +21,7 @@ steps:
     Dockerfile: Microsoft.OneWeek.Hack.Microids.IoTDevice/Dockerfile
     containerRegistry: 'Azure CR'
     tags: |
-      $(Date:yyyyMMdd).$(Rev:r)
+      $(Date:yyyyMMdd)$(Rev:.r)
       $(Build.BuildId)
 
 - task: Docker@2
@@ -32,7 +32,7 @@ steps:
     Dockerfile: Microsoft.OneWeek.Hack.Microids.IoTDevice.Metadata.Restful/Dockerfile
     containerRegistry: 'Azure CR'
     tags: |
-      $(Date:yyyyMMdd).$(Rev:r)
+      $(Date:yyyyMMdd)$(Rev:.r)
       $(Build.BuildId)
     
 - task: Docker@2
@@ -43,5 +43,5 @@ steps:
     Dockerfile: Microsoft.OneWeek.Hack.Microids.MessageRouter/Dockerfile
     containerRegistry: 'Azure CR'
     tags: |
-      $(Date:yyyyMMdd).$(Rev:r)
+      $(Date:yyyyMMdd)$(Rev:.r)
       $(Build.BuildId)
