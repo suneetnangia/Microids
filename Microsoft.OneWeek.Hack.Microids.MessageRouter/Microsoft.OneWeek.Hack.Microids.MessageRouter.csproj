@@ -19,6 +19,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.11.0" />
+    <PackageReference Include="Refit" Version="4.8.14" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.OneWeek.Hack.Microids.Common\Microsoft.OneWeek.Hack.Microids.Common.csproj" />

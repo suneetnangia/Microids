@@ -9,21 +9,61 @@ pool:
 
 variables:
   iot_imageName: 'iotdevice'
+  iot_rest_imageName: 'iotdevicerestful'
   router_imageName: 'messagerouter'
 
 steps:
 - task: Docker@2
-  displayName: Build and push IoT Device Image
+  displayName: Build and Push IoT Device Image
   inputs:
     repository: $(iot_imageName)
     command: buildAndPush
     Dockerfile: Microsoft.OneWeek.Hack.Microids.IoTDevice/Dockerfile
     containerRegistry: 'Azure CR'
+
+- task: Docker@2
+  displayName: Build and Push Restful IoT Device Image
+  inputs:
+    repository: $(iot_rest_imageName)
+    command: buildAndPush
+    Dockerfile: Microsoft.OneWeek.Hack.Microids.IoTDevice.Metadata.Restful/Dockerfile
+    containerRegistry: 'Azure CR'
     
 - task: Docker@2
-  displayName: Build and push Message Router Image
+  displayName: Build and Push Message Router Image
   inputs:
     repository: $(router_imageName)
     command: buildAndPush
     Dockerfile: Microsoft.OneWeek.Hack.Microids.MessageRouter/Dockerfile
     containerRegistry: 'Azure CR'
+
+- task: HelmInstaller@0
+  displayName: 'Install Helm 2.14.1'
+
+- task: HelmDeploy@0
+  displayName: 'Helm Init'
+  inputs:
+    azureSubscription: 'Microids Azure Subscription'
+    azureResourceGroup: Microids
+    kubernetesCluster: Microids
+    command: init
+
+- task: HelmDeploy@0
+  displayName: 'Helm Install IoT Device'
+  inputs:
+    azureSubscription: 'Microids Azure Subscription'
+    azureResourceGroup: Microids
+    kubernetesCluster: Microids
+    command: install
+    chartName: iotdevice
+    overrideValues: 'image.tag=$(Build.BuildId)'
+
+- task: HelmDeploy@0
+  displayName: 'Helm Install Message Router'
+  inputs:
+    azureSubscription: 'Microids Azure Subscription'
+    azureResourceGroup: Microids
+    kubernetesCluster: Microids
+    command: install
+    chartName: messagerouter
+    overrideValues: 'image.tag=$(Build.BuildId)'

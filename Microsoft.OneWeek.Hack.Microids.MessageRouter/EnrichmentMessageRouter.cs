@@ -1,6 +1,8 @@
 namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 {
     using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
@@ -16,6 +18,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
         private ITelemetryClient telemetryClient;
         private ILogger<EnrichmentMessageRouter> logger;
         private IConfiguration config;
+        private int waiting = 0;
 
         public EnrichmentMessageRouter(IDataSource dataSource, IDataSink dataSink, IIoTDeviceDataEnricher dataEnricher, ITelemetryClient telemetryClient, IConfiguration config, ILogger<EnrichmentMessageRouter> logger)
         {
@@ -27,61 +30,72 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
             this.config = config;
 
             // handle messages as they arrive
-            this.MessageReceived += async (sender, e) =>
+            this.MessageBatchReceived += (sender, e) =>
             {
 
-                // get the device id
-                var deviceId = e.Message.GetDeviceId();
-
-                // get the metadata
-                var startTime = DateTime.UtcNow;
-                var timer = System.Diagnostics.Stopwatch.StartNew();
-                try
+                // process with parallelism
+                Parallel.ForEach(e.Messages, async (message) =>
                 {
-                    var metadata = await this.dataEnricher.GetMetadataAsync(deviceId);
-                    if (metadata != null)
+
+                    // get the device id
+                    var deviceId = message.GetDeviceId();
+
+                    // get the metadata
+                    var startTime = DateTime.UtcNow;
+                    var timer = System.Diagnostics.Stopwatch.StartNew();
+                    try
                     {
+                        var metadata = await this.dataEnricher.GetMetadataAsync(deviceId);
+                        if (metadata != null)
+                        {
 
-                        // enrich the message
-                        e.Message.EnrichMessage(metadata);
+                            // enrich the message
+                            message.EnrichMessage(metadata);
 
-                        // output the message
-                        await this.dataSink.WriteMessageAsync(e.Message);
+                            // output the message
+                            await this.dataSink.WriteMessageAsync(message);
 
+                            // send the telemetry
+                            timer.Stop();
+                            telemetryClient.TrackDependency("gRPC call", "IoTClient", "GetMetadataAzync", startTime, timer.Elapsed, true);
+
+                        }
+                    }
+                    catch
+                    {
                         // send the telemetry
                         timer.Stop();
-                        telemetryClient.TrackDependency("gRPC call", "IoTClient", "GetMetadataAzync", startTime, timer.Elapsed, true);
+                        logger.LogDebug($"gRPC call took {timer.Elapsed.Milliseconds} ms");
+                        telemetryClient.TrackDependency("gRPC call", "IoTClient", "GetMetadataAzync", startTime, timer.Elapsed, false);
 
                     }
-                }
-                catch
-                {
-                    // send the telemetry
-                    timer.Stop();
-                    telemetryClient.TrackDependency("gRPC call", "IoTClient", "GetMetadataAzync", startTime, timer.Elapsed, false);
-                }
+                    finally
+                    {
+                        Interlocked.Decrement(ref waiting);
+                    }
 
+                });
 
             };
         }
 
-        public event EventHandler<MessageReceivedEventArgs> MessageReceived;
+        public event EventHandler<MessageBatchReceivedEventArgs> MessageBatchReceived;
 
-        public class MessageReceivedEventArgs : EventArgs
+        public class MessageBatchReceivedEventArgs : EventArgs
         {
-            public IMessage Message { get; set; }
+            public IEnumerable<IMessage> Messages { get; set; }
         }
 
-        protected virtual void OnMessageReceived(MessageReceivedEventArgs e)
+        protected virtual void OnMessageBatchReceived(MessageBatchReceivedEventArgs e)
         {
             try
             {
-                EventHandler<MessageReceivedEventArgs> handler = MessageReceived;
+                EventHandler<MessageBatchReceivedEventArgs> handler = MessageBatchReceived;
                 handler?.Invoke(this, e);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Exception raised OnMessageReceived...");
+                logger.LogError(ex, "Exception raised OnMessageBatchReceived...");
             }
         }
 
@@ -117,24 +131,99 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
             }
         }
 
+        private int RestrictMessagesAtBufferSize
+        {
+            get
+            {
+                string s = config.GetValue<string>("RESTRICT_MESSAGES_AT_BUFFER_SIZE");
+                if (int.TryParse(s, out int i))
+                {
+                    return i;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
+
+        private int MaxWaitToAddMessages
+        {
+            get
+            {
+                string s = config.GetValue<string>("MAX_WAIT_TO_ADD_MESSAGES");
+                if (int.TryParse(s, out int i))
+                {
+                    return i;
+                }
+                else
+                {
+                    return 30000;
+                }
+            }
+        }
+
         public Task Initiate(CancellationToken ct)
         {
-            return Task.Run(() => {
-                Timer timer = new Timer(async (_) =>
+            return Task.Run(() =>
+            {
+
+                // timer to generate messages
+                Timer generate = new Timer(async (_) =>
                 {
-                    for (int i = 0; i < NumMessagesEachGeneration; i++)
+                    try
                     {
-                        var msg = await this.dataSource.ReadMessageAsync();
-                        OnMessageReceived(new MessageReceivedEventArgs()
+
+                        // wait until buffer is flushed
+                        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+                        while (waiting > RestrictMessagesAtBufferSize)
                         {
-                            Message = msg
+                            if (stopwatch.ElapsedMilliseconds > MaxWaitToAddMessages) throw new TimeoutException("MAX_WAIT_TO_ADD_MESSAGES was exceeded.");
+                            await Task.Delay(10);
+                        }
+                        stopwatch.Stop();
+
+                        // generate the messages
+                        var msgs = new List<IMessage>();
+                        for (int i = 0; i < NumMessagesEachGeneration; i++)
+                        {
+                            var msg = await this.dataSource.ReadMessageAsync();
+                            Interlocked.Increment(ref waiting);
+                            msgs.Add(msg);
+                        }
+
+                        // release the batch
+                        OnMessageBatchReceived(new MessageBatchReceivedEventArgs()
+                        {
+                            Messages = msgs
                         });
+
+                    }
+                    catch (TimeoutException)
+                    {
+                        throw;
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "there was an exception in the generate messages loop...");
                     }
                 }, null, GenerateMessagesEvery, GenerateMessagesEvery);
 
-                while (!ct.IsCancellationRequested){
+                // timer to report status every 10 seconds
+                Timer report = new Timer((_) =>
+                {
+                    logger.LogDebug($"buffer: {waiting}; threads: {Process.GetCurrentProcess().Threads.Count}");
+                }, null, 10000, 10000);
+
+                // wait for cancellation
+                while (!ct.IsCancellationRequested)
+                {
                     Thread.Sleep(TimeSpan.FromSeconds(.250));
                 }
+
+                // dispose
+                generate.Dispose();
+                report.Dispose();
             }, ct);
         }
 
