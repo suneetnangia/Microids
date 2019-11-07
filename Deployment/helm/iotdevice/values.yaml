@@ -8,3 +8,5 @@ image:
   repository: microids.azurecr.io
   tag: latest
   pullPolicy: IfNotPresent
+
+PORT: 5000

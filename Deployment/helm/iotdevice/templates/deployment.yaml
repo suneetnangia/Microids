@@ -15,13 +15,9 @@ spec:
       containers:
       - image: {{ .Values.image.repository }}/iotdevice:{{ .Values.image.tag}}
         name: iotdevice
-        resources:
-          requests:
-            cpu: 100m
-            memory: 128Mi
-          limits:
-            cpu: 1
-            memory: 2G
+        env:
+        - name: "PORT"
+          value: "{{ .Values.PORT }}"
       tolerations:
       - key: "sku"
         operator: "Equal"

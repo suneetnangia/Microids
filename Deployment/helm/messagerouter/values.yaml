@@ -9,6 +9,6 @@ image:
   tag: latest
   pullPolicy: IfNotPresent
 
-GENERATE_MESSAGES_EVERY: 1000
-NUM_MESSAGES_EACH_GENERATION: 1000
-CACHE_GRPC_ENDPOINT: "cache.default.svc.cluster.local:80"
+GENERATE_MESSAGES_EVERY: 100
+NUM_MESSAGES_EACH_GENERATION: 33
+CACHE_GRPC_ENDPOINT: "iotdevice.default.svc.cluster.local:5000"

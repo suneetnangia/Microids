@@ -27,13 +27,8 @@ spec:
             secretKeyRef:
               name: appinsightskey
               key: APPINSIGHTS_KEY
-        resources:
-          requests:
-            cpu: 100m
-            memory: 128Mi
-          limits:
-            cpu: 1
-            memory: 2G
+        - name: "LOG_LEVEL"
+          value: "Debug"
       tolerations:
       - key: "sku"
         operator: "Equal"
