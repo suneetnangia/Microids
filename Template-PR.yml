@@ -1,0 +1,29 @@
+parameters:
+  buildConfiguration: 'Release'
+  buildProjects: []
+  testProjects: []
+
+steps:
+- task: UseDotNet@2
+  displayName: 'Ensure .NET Core sdk 3.0.100 is installed'
+  inputs:
+    packageType: sdk
+    version: 3.0.100
+    installationPath: $(Agent.ToolsDirectory)/dotnet
+
+- ${{ each buildProject in parameters.buildProjects }}:
+  - task: DotNetCoreCLI@2
+    displayName: 'Build project: ${{ buildProject }}'
+    inputs:
+      command: 'build'
+      configuration: ${{ parameters.buildConfiguration }}
+      projects: ${{ buildProject }}
+
+- ${{ each testProject in parameters.testProjects }}:
+  - task: DotNetCoreCLI@2
+    displayName: 'Run unit test project: ${{ testProject }}'
+    inputs:
+      command: 'test'
+      configuration: ${{ parameters.buildConfiguration }}
+      publishTestResults: true
+      projects: ${{ testProject }}
