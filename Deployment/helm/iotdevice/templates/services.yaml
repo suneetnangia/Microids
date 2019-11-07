@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: cache
+  name: iotdevice
 spec:
   selector:
-    app: cache
+    app: iotdevice
   ports:
     - protocol: TCP
       port: 80

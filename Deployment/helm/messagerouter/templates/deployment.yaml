@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: orchestrator
+  name: messagerouter
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: orchestrator
+      app: messagerouter
   template:
     metadata:
       labels:
-        app: orchestrator
+        app: messagerouter
     spec:
       containers:
-      - image: {{ .Values.image.repository }}/orchestrator:{{ .Values.image.tag}}
-        name: orchestrator
+      - image: {{ .Values.image.repository }}/messagerouter:{{ .Values.image.tag}}
+        name: messagerouter
         env:
         - name: "GENERATE_MESSAGES_EVERY"
           value: "{{ .Values.GENERATE_MESSAGES_EVERY }}"
