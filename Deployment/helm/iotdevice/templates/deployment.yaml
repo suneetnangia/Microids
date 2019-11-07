@@ -15,6 +15,12 @@ spec:
       containers:
       - image: {{ .Values.image.repository }}/iotdevice:{{ .Values.image.tag}}
         name: iotdevice
+        env:
+        - name: "APPINSIGHTS_KEY"
+          valueFrom:
+            secretKeyRef:
+              name: appinsightskey
+              key: APPINSIGHTS_KEY
         resources:
           requests:
             cpu: 100m

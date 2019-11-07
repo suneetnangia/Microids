@@ -7,6 +7,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Configuration;
     using System.Threading.Tasks;
+    using Microsoft.OneWeek.Hack.Microids.Common;
 
     // Enricher to call gRPC based data service.
     // Refactor the gRPC client sample code here.
@@ -34,6 +35,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
             {
                 string s = config.GetValue<string>("CACHE_GRPC_ENDPOINT");
                 if (string.IsNullOrEmpty(s)) return "localhost:5000";
+                this.logger.LogInformation($"Set GRPC endpoint to {s}");
                 return s;
             }
         }

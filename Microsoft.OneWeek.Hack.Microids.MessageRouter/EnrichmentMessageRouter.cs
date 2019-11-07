@@ -6,6 +6,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Configuration;
     using Microsoft.ApplicationInsights;
+    using Microsoft.OneWeek.Hack.Microids.Common;
 
     public class EnrichmentMessageRouter
     {
