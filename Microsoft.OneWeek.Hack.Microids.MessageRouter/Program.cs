@@ -55,7 +55,13 @@
                 services.AddSingleton<IDataSource>(new TestGeneratorDataSource());
                 var provider = services.BuildServiceProvider();
                 services.AddSingleton<IDataSink>(new BlackHoleDataSink(provider.GetService<ILogger<BlackHoleDataSink>>()));
-                services.AddSingleton<IIoTDeviceDataEnricher>(new IoTDeviceGrpcDataEnricher(telemetry, configuration, provider.GetService<ILogger<IoTDeviceGrpcDataEnricher>>()));
+
+                var protocol = configuration.GetValue<string>("PROTOCOL");
+                if (string.Compare(protocol, "GRPC", true) == 0)
+                    services.AddSingleton<IIoTDeviceDataEnricher>(new IoTDeviceGrpcDataEnricher(telemetry, configuration, provider.GetService<ILogger<IoTDeviceGrpcDataEnricher>>()));
+                else
+                    services.AddSingleton<IIoTDeviceDataEnricher>(new IoTDeviceRestfulDataEnricher(telemetry, configuration, provider.GetService<ILogger<IoTDeviceRestfulDataEnricher>>()));
+
                 services.AddSingleton<IConfiguration>(configuration);
 
                 // Dispose method of ServiceProvider will dispose all disposable objects constructed by it as well.

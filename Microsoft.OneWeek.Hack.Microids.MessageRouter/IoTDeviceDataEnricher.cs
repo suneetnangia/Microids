@@ -108,10 +108,10 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
         }
 
         /*
-                public override async Task RouteChat(
+                public async Task RouteChat(
                     IAsyncStreamReader<DeviceInfo> requestStream,
                     IServerStreamWriter<DeviceMetadata> responseStream,
-                    Grpc.Core.ServerCallContext context)
+                    ServerCallContext context)
                 {
                     while (await requestStream.MoveNext())
                     {
@@ -123,6 +123,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                         }
                     }
                 }
-         */
+        */
+
     }
 }
