@@ -53,16 +53,11 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 
                             // output the message
                             await this.dataSink.WriteMessageAsync(message);
-                            Interlocked.Decrement(ref waiting);
 
                             // send the telemetry
                             timer.Stop();
                             telemetryClient.TrackDependency("gRPC call", "IoTClient", "GetMetadataAzync", startTime, timer.Elapsed, true);
 
-                        }
-                        else
-                        {
-                            Interlocked.Decrement(ref waiting);
                         }
                     }
                     catch
@@ -72,6 +67,10 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                         logger.LogDebug($"gRPC call took {timer.Elapsed.Milliseconds} ms");
                         telemetryClient.TrackDependency("gRPC call", "IoTClient", "GetMetadataAzync", startTime, timer.Elapsed, false);
 
+                    }
+                    finally
+                    {
+                        Interlocked.Decrement(ref waiting);
                     }
 
                 });
