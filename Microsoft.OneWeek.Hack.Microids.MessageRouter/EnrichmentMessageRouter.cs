@@ -17,7 +17,6 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
         private ITelemetryClient telemetryClient;
         private ILogger<EnrichmentMessageRouter> logger;
         private IConfiguration config;
-
         private int waiting = 0;
 
         public EnrichmentMessageRouter(IDataSource dataSource, IDataSink dataSink, IIoTDeviceDataEnricher dataEnricher, ITelemetryClient telemetryClient, IConfiguration config, ILogger<EnrichmentMessageRouter> logger)
@@ -70,7 +69,9 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                     {
                         // send the telemetry
                         timer.Stop();
+                        logger.LogDebug($"gRPC call took {timer.Elapsed.Milliseconds} ms");
                         telemetryClient.TrackDependency("gRPC call", "IoTClient", "GetMetadataAzync", startTime, timer.Elapsed, false);
+
                     }
 
                 });
@@ -170,30 +171,37 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                 // timer to generate messages
                 Timer generate = new Timer(async (_) =>
                 {
-
-                    // wait until buffer is flushed
-                    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                    while (waiting > RestrictMessagesAtBufferSize)
+                    try
                     {
-                        if (stopwatch.ElapsedMilliseconds > MaxWaitToAddMessages) throw new Exception("MAX_WAIT_TO_ADD_MESSAGES was exceeded.");
-                        await Task.Delay(10);
+
+                        // wait until buffer is flushed
+                        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+                        while (waiting > RestrictMessagesAtBufferSize)
+                        {
+                            if (stopwatch.ElapsedMilliseconds > MaxWaitToAddMessages) throw new Exception("MAX_WAIT_TO_ADD_MESSAGES was exceeded.");
+                            await Task.Delay(10);
+                        }
+
+                        // generate the messages
+                        var msgs = new List<IMessage>();
+                        for (int i = 0; i < NumMessagesEachGeneration; i++)
+                        {
+                            var msg = await this.dataSource.ReadMessageAsync();
+                            Interlocked.Increment(ref waiting);
+                            msgs.Add(msg);
+                        }
+
+                        // release the batch
+                        OnMessageBatchReceived(new MessageBatchReceivedEventArgs()
+                        {
+                            Messages = msgs
+                        });
+
                     }
-
-                    // generate the messages
-                    var msgs = new List<IMessage>();
-                    for (int i = 0; i < NumMessagesEachGeneration; i++)
+                    catch (Exception ex)
                     {
-                        var msg = await this.dataSource.ReadMessageAsync();
-                        Interlocked.Increment(ref waiting);
-                        msgs.Add(msg);
+                        logger.LogError(ex, "there was an exception in the generate messages loop...");
                     }
-
-                    // release the batch
-                    OnMessageBatchReceived(new MessageBatchReceivedEventArgs()
-                    {
-                        Messages = msgs
-                    });
-
                 }, null, GenerateMessagesEvery, GenerateMessagesEvery);
 
                 // timer to report status every 10 seconds
@@ -208,6 +216,9 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                     Thread.Sleep(TimeSpan.FromSeconds(.250));
                 }
 
+                // dispose
+                generate.Dispose();
+                report.Dispose();
             }, ct);
         }
 

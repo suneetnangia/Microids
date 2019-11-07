@@ -116,7 +116,6 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                     while (await requestStream.MoveNext())
                     {
                         var note = requestStream.Current;
-
                         List<RouteNote> prevNotes = AddNoteForLocation(note.Location, note);
                         foreach (var prevNote in prevNotes)
                         {

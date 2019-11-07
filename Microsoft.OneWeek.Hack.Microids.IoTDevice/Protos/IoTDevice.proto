@@ -5,7 +5,8 @@ option csharp_namespace = "Microsoft.OneWeek.Hack.Microids.IoTDevice";
 // The device metadata service definition.
 service IoTDevice {
   // Retrieves device metadata.
-  rpc GetMetadata (DeviceInfo) returns (DeviceMetadata);
+  rpc GetMetadata (DeviceInfo) returns (DeviceMetadata);  
+  rpc GetMetadataStream (stream DeviceInfo) returns (stream DeviceMetadata);
 }
 
 // The request message containing the device Id.
