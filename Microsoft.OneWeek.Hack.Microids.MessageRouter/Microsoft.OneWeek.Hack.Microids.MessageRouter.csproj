@@ -22,6 +22,9 @@
     <PackageReference Include="Refit" Version="4.8.14" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Microsoft.OneWeek.Hack.Microids.Common\Microsoft.OneWeek.Hack.Microids.Common.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <Protobuf Include="Protos\IoTDevice.proto" GrpcServices="Client" />
   </ItemGroup>
   <ItemGroup>
