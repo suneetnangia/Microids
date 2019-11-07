@@ -15,10 +15,10 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
     {
 
         private IConfiguration config;
-        private TelemetryClient telemetryClient;
+        private ITelemetryClient telemetryClient;
         private ILogger<IoTDeviceGrpcDataEnricher> logger;
 
-        public IoTDeviceGrpcDataEnricher(TelemetryClient telemetryClient, IConfiguration config, ILogger<IoTDeviceGrpcDataEnricher> logger)
+        public IoTDeviceGrpcDataEnricher(ITelemetryClient telemetryClient, IConfiguration config, ILogger<IoTDeviceGrpcDataEnricher> logger)
         {
             this.telemetryClient = telemetryClient;
             this.config = config;

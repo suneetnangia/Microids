@@ -12,11 +12,11 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
         private IIoTDeviceDataEnricher dataEnricher;
         private IDataSource dataSource;
         private IDataSink dataSink;
-        private TelemetryClient telemetryClient;
+        private ITelemetryClient telemetryClient;
         private ILogger<EnrichmentMessageRouter> logger;
         private IConfiguration config;
 
-        public EnrichmentMessageRouter(IDataSource dataSource, IDataSink dataSink, IIoTDeviceDataEnricher dataEnricher, TelemetryClient telemetryClient, IConfiguration config, ILogger<EnrichmentMessageRouter> logger)
+        public EnrichmentMessageRouter(IDataSource dataSource, IDataSink dataSink, IIoTDeviceDataEnricher dataEnricher, ITelemetryClient telemetryClient, IConfiguration config, ILogger<EnrichmentMessageRouter> logger)
         {
             this.dataSource = dataSource;
             this.dataSink = dataSink;
