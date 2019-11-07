@@ -50,6 +50,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 
                         // send the telemetry
                         timer.Stop();
+                        logger.LogDebug($"gRPC call took {timer.Elapsed.Milliseconds} ms");
                         telemetryClient.TrackDependency("gRPC call", "IoTClient", "GetMetadataAzync", startTime, timer.Elapsed, true);
 
                     }

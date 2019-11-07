@@ -106,5 +106,23 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                 await Task.Delay(1000);
             }
         }
+
+        /*
+                public override async Task RouteChat(
+                    IAsyncStreamReader<DeviceInfo> requestStream,
+                    IServerStreamWriter<DeviceMetadata> responseStream,
+                    Grpc.Core.ServerCallContext context)
+                {
+                    while (await requestStream.MoveNext())
+                    {
+                        var note = requestStream.Current;
+                        List<RouteNote> prevNotes = AddNoteForLocation(note.Location, note);
+                        foreach (var prevNote in prevNotes)
+                        {
+                            await responseStream.WriteAsync(prevNote);
+                        }
+                    }
+                }
+         */
     }
 }
