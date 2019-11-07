@@ -21,6 +21,8 @@ namespace Microsoft.OneWeek.Hack.Microids.IoTDevice.DeviceMetadata.Restful
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                    webBuilder.UseUrls("http://localhost:5050");
                 });
-    }
+
+        }
 }
