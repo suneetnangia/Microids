@@ -20,6 +20,9 @@ steps:
     command: buildAndPush
     Dockerfile: Microsoft.OneWeek.Hack.Microids.IoTDevice/Dockerfile
     containerRegistry: 'Azure CR'
+    tags: |
+      $(Date:yyyyMMdd).$(Rev:r)
+      $(Build.BuildId)
 
 - task: Docker@2
   displayName: Build and Push Restful IoT Device Image
@@ -28,6 +31,9 @@ steps:
     command: buildAndPush
     Dockerfile: Microsoft.OneWeek.Hack.Microids.IoTDevice.Metadata.Restful/Dockerfile
     containerRegistry: 'Azure CR'
+    tags: |
+      $(Date:yyyyMMdd).$(Rev:r)
+      $(Build.BuildId)
     
 - task: Docker@2
   displayName: Build and Push Message Router Image
@@ -36,3 +42,6 @@ steps:
     command: buildAndPush
     Dockerfile: Microsoft.OneWeek.Hack.Microids.MessageRouter/Dockerfile
     containerRegistry: 'Azure CR'
+    tags: |
+      $(Date:yyyyMMdd).$(Rev:r)
+      $(Build.BuildId)
