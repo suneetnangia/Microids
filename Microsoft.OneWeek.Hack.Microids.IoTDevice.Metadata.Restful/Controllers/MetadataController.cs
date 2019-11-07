@@ -22,7 +22,7 @@ namespace Microsoft.OneWeek.Hack.Microids.IoTDevice.DeviceMetadata.Restful.Contr
         public async Task<DeviceMetadata> Get(string deviceId)
         {
             var deviceMetadata = this.deviceMetadataRepository.GetMetadata(deviceId);
-            return await Task.FromResult(new DeviceMetadata() {Id= deviceMetadata.Id, Fqdn = deviceMetadata.Fqdn, Capabilities = deviceMetadata.Capabilities });
+            return await Task.FromResult(new DeviceMetadata() {Id= deviceMetadata.Id, Fqdn = deviceMetadata.Fqdn, Capability = deviceMetadata.Capability });
         }
     }
 }
