@@ -178,7 +178,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                         while (waiting > RestrictMessagesAtBufferSize)
                         {
-                            if (stopwatch.ElapsedMilliseconds > MaxWaitToAddMessages) throw new Exception("MAX_WAIT_TO_ADD_MESSAGES was exceeded.");
+                            if (stopwatch.ElapsedMilliseconds > MaxWaitToAddMessages) throw new TimeoutException("MAX_WAIT_TO_ADD_MESSAGES was exceeded.");
                             await Task.Delay(10);
                         }
                         stopwatch.Stop();
@@ -198,6 +198,10 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                             Messages = msgs
                         });
 
+                    }
+                    catch (TimeoutException)
+                    {
+                        throw;
                     }
                     catch (Exception ex)
                     {
