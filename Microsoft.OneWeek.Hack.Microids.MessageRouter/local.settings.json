@@ -1,3 +1,5 @@
 ﻿{
-  "AppInsightsKey" :  ""
+  "APPINSIGHTS_KEY": "",
+  "PROTOCOL": "REST",
+  "REST_SERVICE_URL": "http://localhost:58700/"
 }

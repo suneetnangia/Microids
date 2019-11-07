@@ -29,10 +29,10 @@ namespace Microsoft.OneWeek.Hack.Microids.IoTDevice.DeviceMetadata.Restful
              // Mocked device repositories for testing gRPC performance.
             var mockedDeviceMetadataRepository = new Mock<IDeviceMetadataRepository>();
             mockedDeviceMetadataRepository.Setup(device => device.GetMetadata("001"))
-                                    .Returns(new DeviceMetadata { Fqdn = "001.GB.London.Bld01", Capabilities = DeviceCapability.RotationSpeed | DeviceCapability.Temperature });
+                                    .Returns(new DeviceMetadata { Fqdn = "001.GB.London.Bld01", Capability = DeviceCapability.RotationSpeed | DeviceCapability.Temperature });
 
             mockedDeviceMetadataRepository.Setup(device => device.GetMetadata("002"))
-                                    .Returns(new DeviceMetadata { Fqdn = "002.US.WA.Bld28", Capabilities = DeviceCapability.WindSpeed | DeviceCapability.RotationSpeed | DeviceCapability.Temperature });
+                                    .Returns(new DeviceMetadata { Fqdn = "002.US.WA.Bld28", Capability = DeviceCapability.WindSpeed | DeviceCapability.RotationSpeed | DeviceCapability.Temperature });
 
             // Configure dependencies for the service.
             services.AddSingleton<IDeviceMetadataRepository>(mockedDeviceMetadataRepository.Object);
