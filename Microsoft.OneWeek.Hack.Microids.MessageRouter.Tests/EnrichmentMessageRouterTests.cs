@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Microsoft.ApplicationInsights;
+using Microsoft.OneWeek.Hack.Microids.Common;
 
 namespace Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests
 {

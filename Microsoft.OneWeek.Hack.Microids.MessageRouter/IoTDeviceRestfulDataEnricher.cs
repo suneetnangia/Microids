@@ -5,6 +5,7 @@
     using Refit;
     using System.Threading.Tasks;
     using Microsoft.OneWeek.Hack.Microids.IoTDevice;
+    using Microsoft.OneWeek.Hack.Microids.Common;
 
     public class IoTDeviceRestfulDataEnricher : IIoTDeviceDataEnricher
     {

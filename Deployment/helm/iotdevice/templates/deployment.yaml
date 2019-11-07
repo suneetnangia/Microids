@@ -16,6 +16,11 @@ spec:
       - image: {{ .Values.image.repository }}/iotdevice:{{ .Values.image.tag}}
         name: iotdevice
         env:
+        - name: "APPINSIGHTS_KEY"
+          valueFrom:
+            secretKeyRef:
+              name: appinsightskey
+              key: APPINSIGHTS_KEY
         - name: "PORT"
           value: "{{ .Values.PORT }}"
       tolerations:
