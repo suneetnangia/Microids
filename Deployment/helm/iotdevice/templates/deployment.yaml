@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cache
+  name: iotdevice
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: cache
+      app: iotdevice
   template:
     metadata:
       labels:
-        app: cache
+        app: iotdevice
     spec:
       containers:
-      - image: nginx:1.15.9
-        name: cache
+      - image: {{ .Values.image.repository }}/iotdevice:{{ .Values.image.tag}}
+        name: iotdevice
         resources:
           requests:
             cpu: 100m

@@ -2,7 +2,7 @@ trigger:
   batch: true
   branches:
     include:
-      master
+    - master
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -13,14 +13,17 @@ variables:
 
 steps:
 - task: Docker@2
-  displayName: Build an image
+  displayName: Build and push IoT Device Image
   inputs:
     repository: $(iot_imageName)
-    command: build
+    command: buildAndPush
     Dockerfile: Microsoft.OneWeek.Hack.Microids.IoTDevice/Dockerfile
+    containerRegistry: 'Azure CR'
+    
 - task: Docker@2
-  displayName: Build an image
+  displayName: Build and push Message Router Image
   inputs:
     repository: $(router_imageName)
-    command: build
+    command: buildAndPush
     Dockerfile: Microsoft.OneWeek.Hack.Microids.MessageRouter/Dockerfile
+    containerRegistry: 'Azure CR'

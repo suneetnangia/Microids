@@ -1,0 +1,10 @@
+# Default values for iotdevice.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: microids.azurecr.io
+  tag: latest
+  pullPolicy: IfNotPresent

@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: messagerouter
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: messagerouter
+  template:
+    metadata:
+      labels:
+        app: messagerouter
+    spec:
+      containers:
+      - image: {{ .Values.image.repository }}/messagerouter:{{ .Values.image.tag}}
+        name: messagerouter
+        env:
+        - name: "GENERATE_MESSAGES_EVERY"
+          value: "{{ .Values.GENERATE_MESSAGES_EVERY }}"
+        - name: "NUM_MESSAGES_EACH_GENERATION"
+          value: "{{ .Values.NUM_MESSAGES_EACH_GENERATION }}"
+        - name: "CACHE_GRPC_ENDPOINT"
+          value: "{{ .Values.CACHE_GRPC_ENDPOINT }}"
+        - name: "APPINSIGHTS_KEY"
+          valueFrom:
+            secretKeyRef:
+              name: appinsightskey
+              key: APPINSIGHTS_KEY
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 1
+            memory: 2G
+      tolerations:
+      - key: "sku"
+        operator: "Equal"
+        value: "orchestrator"
+        effect: "NoSchedule"

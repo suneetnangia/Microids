@@ -1,0 +1,11 @@
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- template: Template-PR.yml
+  parameters:
+    buildProjects:
+      - Microsoft.OneWeek.Hack.Microids.IoTDevice/Microsoft.OneWeek.Hack.Microids.IoTDevice.csproj
+    testProjects:

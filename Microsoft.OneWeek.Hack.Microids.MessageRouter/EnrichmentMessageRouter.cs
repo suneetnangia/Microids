@@ -2,18 +2,29 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 {
     using System;
     using System.Threading;
+    using System.Threading.Tasks;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.ApplicationInsights;
 
     public class EnrichmentMessageRouter
     {
         private IIoTDeviceDataEnricher dataEnricher;
         private IDataSource dataSource;
         private IDataSink dataSink;
+        private ITelemetryClient telemetryClient;
+        private ILogger<EnrichmentMessageRouter> logger;
+        private IConfiguration config;
+        private Timer timer;
 
-        public EnrichmentMessageRouter(IDataSource dataSource, IDataSink dataSink, IIoTDeviceDataEnricher dataEnricher)
+        public EnrichmentMessageRouter(IDataSource dataSource, IDataSink dataSink, IIoTDeviceDataEnricher dataEnricher, ITelemetryClient telemetryClient, IConfiguration config, ILogger<EnrichmentMessageRouter> logger)
         {
             this.dataSource = dataSource;
             this.dataSink = dataSink;
             this.dataEnricher = dataEnricher;
+            this.telemetryClient = telemetryClient;
+            this.logger = logger;
+            this.config = config;
 
             // handle messages as they arrive
             this.MessageReceived += async (sender, e) =>
@@ -23,13 +34,34 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                 var deviceId = e.Message.GetDeviceId();
 
                 // get the metadata
-                var metadata = await this.dataEnricher.GetMetadataAsync(deviceId);
+                var startTime = DateTime.UtcNow;
+                var timer = System.Diagnostics.Stopwatch.StartNew();
+                try
+                {
+                    var metadata = await this.dataEnricher.GetMetadataAsync(deviceId);
+                    if (metadata != null)
+                    {
 
-                // enrich the message
-                e.Message.EnrichMessage(metadata);
+                        // enrich the message
+                        e.Message.EnrichMessage(metadata);
 
-                // output the message
-                await this.dataSink.WriteMessageAsync(e.Message);
+                        // output the message
+                        await this.dataSink.WriteMessageAsync(e.Message);
+
+                        // send the telemetry
+                        timer.Stop();
+                        logger.LogDebug($"gRPC call took {timer.Elapsed.Milliseconds} ms");
+                        telemetryClient.TrackDependency("gRPC call", "IoTClient", "GetMetadataAzync", startTime, timer.Elapsed, true);
+
+                    }
+                }
+                catch
+                {
+                    // send the telemetry
+                    timer.Stop();
+                    telemetryClient.TrackDependency("gRPC call", "IoTClient", "GetMetadataAzync", startTime, timer.Elapsed, false);
+                }
+
 
             };
         }
@@ -50,9 +82,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception raised OnMessageReceived...");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine(ex.StackTrace);
+                logger.LogError(ex, "Exception raised OnMessageReceived...");
             }
         }
 
@@ -60,7 +90,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
         {
             get
             {
-                string s = System.Environment.GetEnvironmentVariable("GENERATE_MESSAGES_EVERY");
+                string s = config.GetValue<string>("GENERATE_MESSAGES_EVERY");
                 if (int.TryParse(s, out int i))
                 {
                     return i;
@@ -76,7 +106,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
         {
             get
             {
-                string s = System.Environment.GetEnvironmentVariable("NUM_MESSAGES_EACH_GENERATION");
+                string s = config.GetValue<string>("NUM_MESSAGES_EACH_GENERATION");
                 if (int.TryParse(s, out int i))
                 {
                     return i;
@@ -88,25 +118,37 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
             }
         }
 
-        public void Initiate(CancellationToken ct)
+        public Task Initiate(CancellationToken ct)
         {
-            Timer timer = new Timer(async (_) =>
-               {
-                   for (int i = 0; i < NumMessagesEachGeneration; i++)
-                   {
-                       var msg = await this.dataSource.ReadMessageAsync();
-                       OnMessageReceived(new MessageReceivedEventArgs()
-                       {
-                           Message = msg
-                       });
-                   }
-               }, null, GenerateMessagesEvery, GenerateMessagesEvery);
-            while (!ct.IsCancellationRequested)
+            return Task.Run(() =>
             {
-                // let the timer run
-            }
-            timer.Change(0, 0);
-            timer.Dispose();
+                int count = NumMessagesEachGeneration;
+                timer = new Timer(async (_) =>
+                {
+                    try
+                    {
+                        for (int i = 0; i < count; i++)
+                        {
+                            var msg = await this.dataSource.ReadMessageAsync();
+                            OnMessageReceived(new MessageReceivedEventArgs()
+                            {
+                                Message = msg
+                            });
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "exception in message generator loop...");
+                    }
+                }, null, GenerateMessagesEvery, GenerateMessagesEvery);
+
+                while (!ct.IsCancellationRequested)
+                {
+                    Thread.Sleep(TimeSpan.FromSeconds(.250));
+                }
+
+                timer.Dispose();
+            }, ct);
         }
 
     }

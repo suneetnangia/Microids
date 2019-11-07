@@ -4,23 +4,24 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="dotenv.net" Version="1.0.6"/>
-    <PackageReference Include="Google.Protobuf" Version="3.10.0"/>
-    <PackageReference Include="Grpc.Core" Version="2.24.0"/>
-    <PackageReference Include="Grpc.Tools" Version="2.24.0" PrivateAssets="All"/>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.11.0"/>
-    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.11.2"/>
-    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.8.2"/>
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.0.0"/>
-    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="3.0.0"/>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.0.0"/>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.0.0"/>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.0.0"/>
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0"/>
-    <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.11.0"/>
+    <PackageReference Include="dotenv.net" Version="1.0.6" />
+    <PackageReference Include="Google.Protobuf" Version="3.10.0" />
+    <PackageReference Include="Grpc.Core" Version="2.24.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.24.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.11.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.11.2" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.8.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.11.0" />
   </ItemGroup>
   <ItemGroup>
-    <Protobuf Include="Protos\IoTDevice.proto" GrpcServices="Client"/>
+    <Protobuf Include="Protos\IoTDevice.proto" GrpcServices="Client" />
   </ItemGroup>
   <ItemGroup>
     <None Update="local.settings.json">
