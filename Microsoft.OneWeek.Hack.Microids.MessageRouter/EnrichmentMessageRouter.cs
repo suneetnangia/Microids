@@ -15,6 +15,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
         private ITelemetryClient telemetryClient;
         private ILogger<EnrichmentMessageRouter> logger;
         private IConfiguration config;
+        private Timer timer;
 
         public EnrichmentMessageRouter(IDataSource dataSource, IDataSink dataSink, IIoTDeviceDataEnricher dataEnricher, ITelemetryClient telemetryClient, IConfiguration config, ILogger<EnrichmentMessageRouter> logger)
         {
@@ -118,22 +119,34 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 
         public Task Initiate(CancellationToken ct)
         {
-            return Task.Run(() => {
-                Timer timer = new Timer(async (_) =>
+            return Task.Run(() =>
+            {
+                int count = NumMessagesEachGeneration;
+                timer = new Timer(async (_) =>
                 {
-                    for (int i = 0; i < NumMessagesEachGeneration; i++)
+                    try
                     {
-                        var msg = await this.dataSource.ReadMessageAsync();
-                        OnMessageReceived(new MessageReceivedEventArgs()
+                        for (int i = 0; i < count; i++)
                         {
-                            Message = msg
-                        });
+                            var msg = await this.dataSource.ReadMessageAsync();
+                            OnMessageReceived(new MessageReceivedEventArgs()
+                            {
+                                Message = msg
+                            });
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "exception in message generator loop...");
                     }
                 }, null, GenerateMessagesEvery, GenerateMessagesEvery);
 
-                while (!ct.IsCancellationRequested){
+                while (!ct.IsCancellationRequested)
+                {
                     Thread.Sleep(TimeSpan.FromSeconds(.250));
                 }
+
+                timer.Dispose();
             }, ct);
         }
 
