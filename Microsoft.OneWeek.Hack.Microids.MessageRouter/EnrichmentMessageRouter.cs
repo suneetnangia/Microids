@@ -40,6 +40,7 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                     var deviceId = message.GetDeviceId();
 
                     // get the metadata
+                    bool success = false;
                     var startTime = DateTime.UtcNow;
                     var timer = System.Diagnostics.Stopwatch.StartNew();
                     try
@@ -53,24 +54,20 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 
                             // output the message
                             await this.dataSink.WriteMessageAsync(message);
-
-                            // send the telemetry
-                            timer.Stop();
-                            telemetryClient.TrackDependency("gRPC call", "IoTClient", "GetMetadataAzync", startTime, timer.Elapsed, true);
+                            success = true;
 
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // send the telemetry
-                        timer.Stop();
-                        logger.LogDebug($"gRPC call took {timer.Elapsed.Milliseconds} ms");
-                        telemetryClient.TrackDependency("gRPC call", "IoTClient", "GetMetadataAzync", startTime, timer.Elapsed, false);
-
+                        logger.LogError(ex, "exception in MessageBatchReceived...");
                     }
                     finally
                     {
                         Interlocked.Decrement(ref waiting);
+                        timer.Stop();
+                        logger.LogDebug($"gRPC call took {timer.Elapsed.Milliseconds} ms");
+                        telemetryClient.TrackDependency("gRPC call", "IoTClient", "GetMetadataAzync", startTime, timer.Elapsed, success);
                     }
 
                 });
@@ -173,15 +170,6 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                     try
                     {
 
-                        // wait until buffer is flushed
-                        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                        while (waiting > RestrictMessagesAtBufferSize)
-                        {
-                            if (stopwatch.ElapsedMilliseconds > MaxWaitToAddMessages) throw new TimeoutException("MAX_WAIT_TO_ADD_MESSAGES was exceeded.");
-                            await Task.Delay(10);
-                        }
-                        stopwatch.Stop();
-
                         // generate the messages
                         var msgs = new List<IMessage>();
                         for (int i = 0; i < NumMessagesEachGeneration; i++)
@@ -190,6 +178,15 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                             Interlocked.Increment(ref waiting);
                             msgs.Add(msg);
                         }
+
+                        // wait until buffer is flushed
+                        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+                        while (waiting > RestrictMessagesAtBufferSize)
+                        {
+                            if (stopwatch.ElapsedMilliseconds > MaxWaitToAddMessages) throw new TimeoutException("MAX_WAIT_TO_ADD_MESSAGES was exceeded.");
+                            await Task.Delay(10);
+                        }
+                        stopwatch.Stop();
 
                         // release the batch
                         OnMessageBatchReceived(new MessageBatchReceivedEventArgs()
