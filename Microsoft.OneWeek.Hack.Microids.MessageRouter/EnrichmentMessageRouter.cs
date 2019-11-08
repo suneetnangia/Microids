@@ -47,17 +47,12 @@ namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
                     try
                     {
                         var metadata = await this.dataEnricher.GetMetadataAsync(deviceId);
-                        if (metadata != null)
-                        {
+                        if (metadata != null) message.EnrichMessage(metadata);
 
-                            // enrich the message
-                            message.EnrichMessage(metadata);
+                        // output the message
+                        await this.dataSink.WriteMessageAsync(message);
+                        success = true;
 
-                            // output the message
-                            await this.dataSink.WriteMessageAsync(message);
-                            success = true;
-
-                        }
                     }
                     catch (Exception ex)
                     {
