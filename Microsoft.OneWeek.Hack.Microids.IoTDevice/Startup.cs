@@ -1,14 +1,14 @@
 namespace Microsoft.OneWeek.Hack.Microids.IoTDevice
 {
+    using System;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
-    using Microids.Common;
-    using Moq;
-    using System;
+    using Microsoft.OneWeek.Hack.Microids.Common;
 
     public class Startup
     {
@@ -25,18 +25,18 @@ namespace Microsoft.OneWeek.Hack.Microids.IoTDevice
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            // Mocked device repositories for testing gRPC performance.
-
-            var mockedDeviceMetadataRepository = new Mock<IDeviceMetadataRepository>();
-            mockedDeviceMetadataRepository.Setup(device => device.GetMetadata("001"))
-                                    .Returns(new DeviceMetadata { Fqdn = "001.GB.London.Bld01", Capability = DeviceCapability.RotationSpeed });
-
-            mockedDeviceMetadataRepository.Setup(device => device.GetMetadata("002"))
-                                    .Returns(new DeviceMetadata { Fqdn = "002.US.WA.Bld28", Capability = DeviceCapability.WindSpeed });
-
             // Configure dependencies for the service.
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Environment.CurrentDirectory)
+                .AddEnvironmentVariables()
+                .Build();
+
+            services.AddSingleton<IConfiguration>(configuration);
+            ITelemetryClient telemetry = new AppInsightsTelemetryClient(configuration);
+            services.AddSingleton<ITelemetryClient>(telemetry);
             services.AddLogging(configure =>
             {
+                configure.ClearProviders();
                 configure.AddProvider(new SingleLineConsoleLoggerProvider());
             })
             .Configure<LoggerFilterOptions>(options =>
@@ -50,8 +50,10 @@ namespace Microsoft.OneWeek.Hack.Microids.IoTDevice
                     options.MinLevel = Microsoft.Extensions.Logging.LogLevel.Information;
                 }
             });
+
+            services.AddApplicationInsightsTelemetry(configuration.GetValue<string>("APPINSIGHTS_KEY"));
             services.AddGrpc();
-            services.AddSingleton<IDeviceMetadataRepository>(mockedDeviceMetadataRepository.Object);
+            services.AddSingleton<IDeviceMetadataRepository, FakeMetadataRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

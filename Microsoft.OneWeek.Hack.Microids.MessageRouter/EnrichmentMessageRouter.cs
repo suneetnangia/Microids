@@ -1,13 +1,14 @@
 namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
 {
     using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Configuration;
     using Microsoft.ApplicationInsights;
-    using System.Collections.Generic;
-    using System.Diagnostics;
+    using Microsoft.OneWeek.Hack.Microids.Common;
 
     public class EnrichmentMessageRouter
     {

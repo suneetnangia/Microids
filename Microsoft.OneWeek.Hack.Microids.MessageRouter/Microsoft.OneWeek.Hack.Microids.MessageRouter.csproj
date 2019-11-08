@@ -1,5 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
@@ -20,6 +22,9 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.11.0" />
     <PackageReference Include="Refit" Version="4.8.14" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.OneWeek.Hack.Microids.Common\Microsoft.OneWeek.Hack.Microids.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Protobuf Include="Protos\IoTDevice.proto" GrpcServices="Client" />

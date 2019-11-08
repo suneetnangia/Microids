@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.OneWeek.Hack.Microids.Common
 {
-
     public class SingleLineConsoleLoggerProvider : ILoggerProvider
     {
         private readonly SingleLineConsoleLoggerConfiguration _config;

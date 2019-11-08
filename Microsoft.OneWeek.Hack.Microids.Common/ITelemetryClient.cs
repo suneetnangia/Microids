@@ -1,4 +1,4 @@
-namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
+namespace Microsoft.OneWeek.Hack.Microids.Common
 {
     using System;
 

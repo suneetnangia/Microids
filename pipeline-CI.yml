@@ -20,6 +20,7 @@ steps:
     command: buildAndPush
     Dockerfile: Microsoft.OneWeek.Hack.Microids.IoTDevice/Dockerfile
     containerRegistry: 'Azure CR'
+    buildContext: $(Build.SourcesDirectory)
 
 - task: Docker@2
   displayName: Build and Push Restful IoT Device Image
@@ -36,3 +37,35 @@ steps:
     command: buildAndPush
     Dockerfile: Microsoft.OneWeek.Hack.Microids.MessageRouter/Dockerfile
     containerRegistry: 'Azure CR'
+    buildContext: $(Build.SourcesDirectory)
+
+- task: HelmInstaller@0
+  displayName: 'Install Helm 2.14.1'
+
+- task: HelmDeploy@0
+  displayName: 'Helm Init'
+  inputs:
+    azureSubscription: 'Microids Azure Subscription'
+    azureResourceGroup: Microids
+    kubernetesCluster: Microids
+    command: init
+
+- task: HelmDeploy@0
+  displayName: 'Helm Install IoT Device'
+  inputs:
+    azureSubscription: 'Microids Azure Subscription'
+    azureResourceGroup: Microids
+    kubernetesCluster: Microids
+    command: install
+    chartName: iotdevice
+    overrideValues: 'image.tag=$(Build.BuildId)'
+
+- task: HelmDeploy@0
+  displayName: 'Helm Install Message Router'
+  inputs:
+    azureSubscription: 'Microids Azure Subscription'
+    azureResourceGroup: Microids
+    kubernetesCluster: Microids
+    command: install
+    chartName: messagerouter
+    overrideValues: 'image.tag=$(Build.BuildId)'

@@ -4,7 +4,7 @@ using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Extensions.Configuration;
 
-namespace Microsoft.OneWeek.Hack.Microids.MessageRouter
+namespace Microsoft.OneWeek.Hack.Microids.Common
 {
     public class AppInsightsTelemetryClient : ITelemetryClient
     {
