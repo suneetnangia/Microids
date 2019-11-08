@@ -12,7 +12,7 @@ namespace Microsoft.OneWeek.Hack.Microids.Common
         public AppInsightsTelemetryClient(IConfiguration config)
         {
             TelemetryConfiguration configuration = TelemetryConfiguration.CreateDefault();
-            configuration.InstrumentationKey = config.GetValue<string>("APPINSIGHTS_KEY");
+            configuration.InstrumentationKey = "8ef60ce7-47d3-4efb-9498-5057cd927045"; //config.GetValue<string>("APPINSIGHTS_KEY");
 
             // TODO: Remove this before going to production
             Console.WriteLine($"InstrumentationKey={configuration.InstrumentationKey}");
