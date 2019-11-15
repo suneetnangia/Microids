@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+option csharp_namespace = "Microsoft.OneWeek.Hack.Microids.IoTDevice";
+
+// The device metadata service definition.
+service IoTDevice {
+  // Retrieves device metadata.
+  rpc GetMetadata (DeviceInfo) returns (DeviceMetadata);  
+  rpc GetMetadataStream (stream DeviceInfo) returns (stream DeviceMetadata);
+}
+
+// The request message containing the device Id.
+message DeviceInfo {
+    string id = 1;
+}
+
+enum DeviceCapability {
+  None = 0;
+  Temperature = 1;
+  WindSpeed = 2;
+  LuxLevel = 4;
+  RotationSpeed = 8;
+}
+
+// The response message containing the device metadata.
+message DeviceMetadata {
+    DeviceCapability capability = 1;
+    string Fqdn = 2;
+}
