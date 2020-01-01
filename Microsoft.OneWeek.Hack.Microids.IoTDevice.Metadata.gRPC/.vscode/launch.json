@@ -15,7 +15,12 @@
             "cwd": "${workspaceFolder}",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
-            "stopAtEntry": false
+            "stopAtEntry": false,
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS" : "http://localhost:5052",
+                "APPINSIGHTS_KEY": "8ef60ce7-47d3-4efb-9498-5057cd927045"
+              }
         },
         {
             "name": ".NET Core Attach",
