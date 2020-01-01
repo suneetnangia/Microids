@@ -1,15 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.OneWeek.Hack.Microids.Common;
 using Moq;
 
 namespace Microsoft.OneWeek.Hack.Microids.IoTDevice.DeviceMetadata.Restful
@@ -26,16 +21,18 @@ namespace Microsoft.OneWeek.Hack.Microids.IoTDevice.DeviceMetadata.Restful
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-             // Mocked device repositories for testing gRPC performance.
-            var mockedDeviceMetadataRepository = new Mock<IDeviceMetadataRepository>();
-            mockedDeviceMetadataRepository.Setup(device => device.GetMetadata("001"))
-                                    .Returns(new DeviceMetadata { Fqdn = "001.GB.London.Bld01", Capability = DeviceCapability.RotationSpeed | DeviceCapability.Temperature });
+            // Configure dependencies for the service.
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Environment.CurrentDirectory)
+                .AddEnvironmentVariables()
+                .Build();
 
-            mockedDeviceMetadataRepository.Setup(device => device.GetMetadata("002"))
-                                    .Returns(new DeviceMetadata { Fqdn = "002.US.WA.Bld28", Capability = DeviceCapability.WindSpeed | DeviceCapability.RotationSpeed | DeviceCapability.Temperature });
+            services.AddSingleton<IConfiguration>(configuration);
+            ITelemetryClient telemetry = new AppInsightsTelemetryClient(configuration);
 
             // Configure dependencies for the service.
-            services.AddSingleton<IDeviceMetadataRepository>(mockedDeviceMetadataRepository.Object);
+            services.AddApplicationInsightsTelemetry(configuration.GetValue<string>("APPINSIGHTS_KEY"));
+            services.AddSingleton<IDeviceMetadataRepository, FakeMetadataRepository>();
             services.AddControllers();
         }
 

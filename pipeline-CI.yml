@@ -29,6 +29,7 @@ steps:
     command: buildAndPush
     Dockerfile: Microsoft.OneWeek.Hack.Microids.IoTDevice.Metadata.Restful/Dockerfile
     containerRegistry: 'Azure CR'
+    buildContext: $(Build.SourcesDirectory)
     
 - task: Docker@2
   displayName: Build and Push Message Router Image

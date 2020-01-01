@@ -10,6 +10,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests", "Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests\Microsoft.OneWeek.Hack.Microids.MessageRouter.Tests.csproj", "{DD813743-23F5-47C0-8046-023B813EB5CC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.OneWeek.Hack.Microids.IoTDevice.Metadata.Restful", "Microsoft.OneWeek.Hack.Microids.IoTDevice.Metadata.Restful\Microsoft.OneWeek.Hack.Microids.IoTDevice.Metadata.Restful.csproj", "{360BDD84-AAE2-4841-8623-375568A82950}"
+	ProjectSection(ProjectDependencies) = postProject
+		{542A9F84-F5DD-455A-887F-8A97E9C0124B} = {542A9F84-F5DD-455A-887F-8A97E9C0124B}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.OneWeek.Hack.Microids.Common", "Microsoft.OneWeek.Hack.Microids.Common\Microsoft.OneWeek.Hack.Microids.Common.csproj", "{542A9F84-F5DD-455A-887F-8A97E9C0124B}"
 EndProject
