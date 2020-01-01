@@ -12,12 +12,11 @@ namespace Microsoft.OneWeek.Hack.Microids.IoTDevice
 
     public class Startup
     {
-
-        private static string LogLevel
+        private static string ConfiguredLogLevel
         {
             get
             {
-                return System.Environment.GetEnvironmentVariable("LOG_LEVEL");
+                return Environment.GetEnvironmentVariable("LOG_LEVEL");
             }
         }
 
@@ -32,26 +31,20 @@ namespace Microsoft.OneWeek.Hack.Microids.IoTDevice
                 .Build();
 
             services.AddSingleton<IConfiguration>(configuration);
-            ITelemetryClient telemetry = new AppInsightsTelemetryClient(configuration);
-            services.AddSingleton<ITelemetryClient>(telemetry);
+            services.AddSingleton<ITelemetryClient>(new AppInsightsTelemetryClient(configuration));            
+            services.AddApplicationInsightsTelemetry(configuration.GetValue<string>("APPINSIGHTS_KEY"));
+
             services.AddLogging(configure =>
             {
                 configure.ClearProviders();
-                configure.AddProvider(new SingleLineConsoleLoggerProvider());
+                configure.AddConsole();
             })
             .Configure<LoggerFilterOptions>(options =>
             {
-                if (Enum.TryParse(LogLevel, out Microsoft.Extensions.Logging.LogLevel level))
-                {
-                    options.MinLevel = level;
-                }
-                else
-                {
-                    options.MinLevel = Microsoft.Extensions.Logging.LogLevel.Information;
-                }
+                options.MinLevel = Enum.TryParse(ConfiguredLogLevel, out LogLevel level) ? 
+                level: LogLevel.Information;
             });
 
-            services.AddApplicationInsightsTelemetry(configuration.GetValue<string>("APPINSIGHTS_KEY"));
             services.AddGrpc();
             services.AddSingleton<IDeviceMetadataRepository, FakeMetadataRepository>();
         }
